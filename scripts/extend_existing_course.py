@@ -1,10 +1,7 @@
-from course.models import Course, Module, Lesson, Quiz, Question, Option
+from course.models import Module, Lesson, Quiz, Question, Option
 
 
-def extend_existing_course(data):
-    chat_uuid = data.get('chat_uuid')
-    course = Course.objects.filter(chat_uuid=chat_uuid).first()
-
+def extend_existing_course(data, course):
     for module_data in data.get('modules', []):
         module_title = module_data.get('module_title')
         module_description = module_data.get('module_description', '')

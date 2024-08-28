@@ -48,8 +48,6 @@ def lesson_detail_view(request, course_id, module_id, lesson_id):
         quiz_score = QuizScore.objects.filter(user=request.user, quiz=quiz).first()
         if quiz_score:
             user_score = quiz_score.score
-            print(quiz_score, 'qs')
-            print(user_score, 'ussis')
 
     return render(request, 'lesson_detail.html', {
         'course': course,
