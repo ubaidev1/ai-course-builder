@@ -135,7 +135,7 @@
     function validateFile() {
         const pdfFile = document.getElementById('pdfFile');
         const fileError = document.getElementById('fileError');
-        const submitButton = document.querySelector('button[type="submit"]');
+        const submitButtons = document.querySelectorAll('button[type="submit"]');
 
         if (pdfFile.files.length === 0) {
             fileError.textContent = "Please select a file.";
@@ -178,8 +178,9 @@
             fileError.textContent = "Please upload a valid PDF file.";
             return false;
         }
-
-        submitButton.disabled = true;
+        submitButtons.forEach(button => {
+        button.disabled = true;
+        });
         fileError.textContent = "";
         return true;
     }
