@@ -3,19 +3,36 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
-from .models import Course, Module, Lesson, QuizScore
+from .models import Course, Module, Lesson, QuizScore, Quiz
 
 
 @login_required
 def home_view(request):
     courses = Course.objects.all()
-    return render(request, 'home.html', {'courses': courses})
+    course_progress = []
+    for course in courses:
+        total_quizzes = Quiz.objects.filter(lesson__module__course=course).count()
+        completed_quizzes = QuizScore.objects.filter(
+            user=request.user,
+            quiz__lesson__module__course=course
+        ).count()
+
+        if total_quizzes > 0:
+            progress_percentage = (completed_quizzes / total_quizzes) * 100
+        else:
+            progress_percentage = 0
+        course_progress.append({
+            'course': course,
+            'progress': progress_percentage
+        })
+    return render(request, 'home.html', {'course_progress': course_progress})
 
 
 @login_required
 def course_detail_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     modules = course.modules.all()
+
     breadcrumbs = [
         {'title': 'Courses', 'url': reverse('home')},
         {'title': course.title, 'url': request.path},
