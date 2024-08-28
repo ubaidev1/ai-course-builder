@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Home - Course Listing
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Available Courses</h1>
+
+    {% if course_progress %}
+    <div class="row g-4">
+        {% for course_data in course_progress %}
+        <div class="col-md-4">
+            <div class="card d-flex flex-column h-100 shadow-lg rounded-3 border-light">
+                <div class="card-body d-flex flex-column flex-grow-1">
+                    <h5 class="card-title">{{ course_data.course.title }}</h5>
+                    <p class="card-text mb-4">{{ course_data.course.description|truncatechars:100 }}</p>
+
+                    <!-- Display Course Progress -->
+                    <div class="progress-container mb-4">
+                        <span class="completion-tag"
+                              style="display: inline-block;background-color: #f8f9fa;font-size: 0.75rem;border-radius: 4px">current completion</span>
+                        <div class="progress" style="height: 15px; background-color: #e9ecef;">
+                            <div class="progress-bar" role="progressbar"
+                                 style="width: {{ course_data.progress }}%; background-color: #ffc107;"
+                                 aria-valuenow="{{ course_data.progress }}" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                        <div class="progress-text" style="margin-top: 5px; font-weight: bold; color: #333;">
+                            {{ course_data.progress|floatformat:2 }}%
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        <a href="{% url 'course_detail' course_data.course.id %}" class="btn btn-primary">View
+                            Course</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-center">Sorry, no courses are available at this moment.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+<!-- Additional CSS for enhanced styling -->
+<style>
+    .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .card-body {
+        flex-grow: 1;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .card-text {
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        width: 100%;
+    }
+
+    .shadow-lg {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .rounded-3 {
+        border-radius: 0.5rem;
+    }
+
+    .border-light {
+        border-color: #f8f9fa;
+    }
+
+    .progress-container {
+        position: relative;
+    }
+
+    .progress {
+        height: 15px;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        background-color: #ffc107;
+        border-radius: 10px;
+    }
+
+    .progress-text {
+        text-align: center;
+        margin-top: 5px;
+        font-weight: bold;
+        color: #333;
+    }
+</style>
