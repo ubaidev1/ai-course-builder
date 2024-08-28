@@ -16,7 +16,6 @@ def home_view(request):
             user=request.user,
             quiz__lesson__module__course=course
         ).count()
-
         if total_quizzes > 0:
             progress_percentage = (completed_quizzes / total_quizzes) * 100
         else:

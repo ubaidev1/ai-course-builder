@@ -17,7 +17,7 @@
             background-color: #343a40;
             color: #fff;
             padding: 20px;
-            height: 100vh;
+            min-height: 100vh;
             overflow-y: auto;
         }
 
@@ -101,7 +101,7 @@
 
 <div class="container-fluid">
     <div class="row">
-        {% if request.path != '/' and request.path != '/home/' and request.path != '/login/' %}
+        {% if request.path != '/' and request.path != '/home/' and request.path != '/login/' and request.path != '/result/' %}
         <!-- Sidebar -->
         <nav class="col-md-3 sidebar">
             {% block sidebar %}
