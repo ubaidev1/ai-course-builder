@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ lesson.title }}
+{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'home' %}">Courses</a></li>
+<li class="breadcrumb-item"><a href="{% url 'course_detail' course.id %}">{{ course.title }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'module_detail' course.id module.id %}">{{ module.title }}</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ lesson.title }}</li>
+{% endblock %}
+
+{% block sidebar %}
+<h4>{{ course.title }}</h4>
+<ul class="nav flex-column">
+    {% for module in course.modules.all %}
+    <li class="nav-item">
+        <!-- Module Title with Bullet -->
+        <a class="nav-link" data-bs-toggle="collapse" href="#module-{{ module.id }}" role="button"
+           aria-expanded="false" aria-controls="module-{{ module.id }}">
+            <i class="bi bi-book"></i> {{ module.title }}
+        </a>
+        <div class="collapse" id="module-{{ module.id }}">
+            <ul class="nav flex-column ms-3 bulleted-list-lessons">
+                {% for lesson in module.lessons.all %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'lesson_detail' course.id module.id lesson.id %}">
+                        <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
+                    </a>
+                </li>
+                {% empty %}
+                <li class="nav-item">
+                    <span class="nav-link">No lessons available</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </li>
+    {% empty %}
+    <li class="nav-item">
+        <span class="nav-link">No modules available</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-1">
+    <h1 class="text-center mb-4">{{ lesson.title }}</h1>
+    <div class="lesson-content">
+        <p>{{ lesson.content }}</p>
+    </div>
+
+    {% if lesson.quizzes.exists %}
+    <div class="mt-4">
+        <h5 class="mb-3">Quiz:</h5>
+        <div>
+            <p>{{ lesson.quizzes.first.title }}</p>
+            {% if user_score is not None %}
+            <p><b>Your Score: {{ user_score }}</b></p>
+            <a href="{% url 'quiz_view' lesson.id %}" class="btn btn-primary btn-lg">Retake Quiz</a>
+            {% else %}
+            <a href="{% url 'quiz_view' lesson.id %}" class="btn btn-primary btn-lg">Take Quiz</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

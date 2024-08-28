@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ course.title }} - Modules
+{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item"><a href="{% url 'home' %}">Courses</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{ course.title }}</li>
+{% endblock %}
+
+{% block sidebar %}
+<h4>{{ course.title }}</h4>
+<ul class="nav flex-column">
+    {% for module in course.modules.all %}
+    <li class="nav-item">
+        <!-- Module Title with Bullet -->
+        <a class="nav-link" data-bs-toggle="collapse" href="#module-{{ module.id }}" role="button"
+           aria-expanded="false" aria-controls="module-{{ module.id }}">
+            <i class="bi bi-book"></i> {{ module.title }}
+        </a>
+        <div class="collapse" id="module-{{ module.id }}">
+            <ul class="nav flex-column ms-3 bulleted-list-lessons">
+                {% for lesson in module.lessons.all %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'lesson_detail' course.id module.id lesson.id %}">
+                        <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
+                    </a>
+                </li>
+                {% empty %}
+                <li class="nav-item">
+                    <span class="nav-link">No lessons available</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </li>
+    {% empty %}
+    <li class="nav-item">
+        <span class="nav-link">No modules available</span>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">{{ course.title }}</h1>
+    <p class="text-center text-muted">{{ course.description }}</p>
+    <h2 class="mt-5">Modules</h2>
+    <div class="row">
+        {% for module in course.modules.all %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ forloop.counter }}. {{ module.title }}</h5>
+                    <p class="card-text">{{ module.description }}</p>
+                    <a href="{% url 'module_detail' course.id module.id %}" class="btn btn-primary">Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center">No modules available for this course.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

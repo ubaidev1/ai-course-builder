@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course-Quiz</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f7f9fc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 80%;
+            max-width: 900px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .header {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .score {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: #444;
+        }
+        .question {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #222;
+            font-weight: 500;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .options button {
+            width: calc(100% - 20px);
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 30px;
+            background-color: #4F46E5;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .options button:hover:not(:disabled) {
+            background-color: #674fbe;
+            transform: scale(1.05);
+        }
+        .options button.correct {
+            background-color: #28a745; /* Green for correct */
+        }
+        .options button.incorrect {
+            background-color: #dc3545; /* Red for incorrect */
+        }
+        .options button:disabled {
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .result {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 20px;
+            color: #444;
+        }
+        .submit-score {
+            display: none;
+            background-color: #4F46E5;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .submit-score:hover {
+            background-color: #674fbe;
+            transform: scale(1.05);
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container">
+    <div class="header">Quiz</div>
+    <div class="score">Score: <span id="score">0</span></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options-container"></div>
+    <div class="result" id="result"></div>
+
+    <!-- Hidden form to submit the score -->
+    <form id="submit-form" method="POST" action="{% url 'submit_quiz_score' lesson.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="final_score" id="final_score" value="0">
+        <button type="submit" class="submit-score" id="submit-button">Submit Score</button>
+    </form>
+</div>
+
+<script>
+    const quizData = {{ quiz_data|safe }};
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+   function loadQuestion() {
+       const questionData = quizData.quiz[currentQuestionIndex];
+       document.getElementById('question').innerText = questionData.question;
+
+       const optionsContainer = document.getElementById('options-container');
+       optionsContainer.innerHTML = ''; // Clear previous options
+       questionData.options.forEach((option, index) => {
+           const button = document.createElement('button');
+           button.innerText = option;
+           button.onclick = () => selectOption(index);
+           button.dataset.correct = option === questionData.correct_answer; // Add data attribute for correct answer
+           optionsContainer.appendChild(button);
+       });
+
+       document.getElementById('result').innerText = '';
+   }
+
+   function selectOption(optionIndex) {
+       const questionData = quizData.quiz[currentQuestionIndex];
+       const selectedButton = document.querySelector(`#options-container button:nth-child(${optionIndex + 1})`);
+       const isCorrect = selectedButton.dataset.correct === 'true';
+
+       // Disable only the selected option button
+       selectedButton.disabled = true;
+
+       if (isCorrect) {
+           selectedButton.classList.add('correct');
+           score += 10; // Add points for correct answer
+           document.getElementById('result').innerText = `Correct! Score: ${score}`;
+
+           // Move to the next question after a short delay
+           setTimeout(() => {
+               currentQuestionIndex++;
+               if (currentQuestionIndex < quizData.quiz.length) {
+                   loadQuestion();
+               } else {
+                   document.getElementById('question').innerText = 'Quiz finished!';
+                   document.getElementById('result').innerText = `Final Score: ${score}`;
+                   document.querySelectorAll('#options-container button').forEach(btn => btn.style.display = 'none');
+
+                   // Show the submit button and set the final score
+                   document.getElementById('final_score').value = score;
+                   document.getElementById('submit-button').style.display = 'inline-block';
+               }
+           }, 1000);
+       } else {
+           selectedButton.classList.add('incorrect');
+           score -= 10; // Deduct points for incorrect answer
+           document.getElementById('result').innerText = `Incorrect! Score: ${score}`;
+       }
+       document.getElementById('score').innerText = score;
+   }
+
+   loadQuestion();
+</script>
+</body>
+</html>
