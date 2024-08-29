@@ -45,7 +45,7 @@
 
 {% block content %}
 <div class="d-flex justify-content-center">
-    <div class="card mt-5" id="flip-card" style="width: 80%; perspective: 1000px;">
+    <div class="card mt-5" id="flip-card" style="width: 65%; border-radius:20px; perspective: 1000px;">
         <div class="flip-card-inner">
             <!-- Lesson Card Front -->
             <div class="card flip-card-front">
@@ -67,7 +67,7 @@
             <div class="card flip-card-back">
                 <div class="quiz-container">
                     <div class="header">Quiz</div>
-                    <div class="score">Score: <span id="score">0</span></div>
+                    <div class="score">Points: <span id="score">0</span></div>
                     <div class="question" id="question"></div>
                     <div class="options" id="options-container"></div>
                     <div class="result" id="result"></div>
@@ -128,12 +128,22 @@
         color: #333;
     }
 
-    .score {
-        font-size: 18px;
-        font-weight: 500;
-        margin-bottom: 20px;
-        color: #444;
-    }
+.score {
+    font-size: 18px;
+    font-weight: 500;
+    position: absolute;
+    bottom: 435px;
+    left: 600px;
+    background: #f33ec4;
+    color: #fff;
+    width: 150px;
+    height: 40px;
+    border-radius: 20px;
+    padding: 10px 20px;
+    z-index: 10;
+ }
+
+
 
     .question {
         font-size: 20px;
@@ -141,6 +151,11 @@
         color: #222;
         font-weight: 500;
     }
+
+    #next-button {
+        border-radius: 20px;
+        background: blue;
+        }
 
     .options {
         display: flex;
@@ -199,6 +214,10 @@
         margin-top: 20px;
         transition: background-color 0.3s, transform 0.2s;
     }
+    body {
+    background-color: #000000;
+    color: #ffffff; /* Ensure the text is visible on the black background */
+}
 
     .submit-score:hover {
         background-color: #674fbe;
