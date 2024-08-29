@@ -30,7 +30,15 @@ def extract_text_from_pdf(pdf_path):
 
 def create_prompt_from_template(pdf_text, prompt_template):
     """Combine the prompt template with the PDF content."""
-    return f"{prompt_template}\n\nPDF Content:\n{pdf_text}"
+    return f"""
+                Here is the content of the PDF:
+
+                <pdf_content>
+                {pdf_text}
+                </pdf_content>
+
+                {prompt_template}
+            """
 
 
 def send_prompt_to_claude(client, prompt, model, max_tokens, temperature, system):
