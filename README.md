@@ -1,6 +1,6 @@
 # Course Builder
 
-#### There can be a normal user or an admin to access the site, Now I will go through both of the phase, first for a normal user
+#### There can be a normal user or an admin to access the site, Now I will go through both of the these, first for a normal user.
 
 ## For a Normal user
 

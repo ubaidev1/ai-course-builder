@@ -7,8 +7,7 @@
 {% block breadcrumbs %}
 <li class="breadcrumb-item"><a href="{% url 'home' %}">Courses</a></li>
 <li class="breadcrumb-item"><a href="{% url 'course_detail' course.id %}">{{ course.title }}</a></li>
-<li class="breadcrumb-item"><a href="{% url 'module_detail' course.id module.id %}">{{ module.title }}</a></li>
-<li class="breadcrumb-item active" aria-current="page">{{ lesson.title }}</li>
+
 {% endblock %}
 
 {% block sidebar %}
@@ -24,7 +23,7 @@
             <ul class="nav flex-column ms-3 bulleted-list-lessons">
                 {% for lesson in module.lessons.all %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lesson_detail' course.id module.id lesson.id %}">
+                    <a class="nav-link" href="{% url 'lesson_detail' lesson.id %}">
                         <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
                     </a>
                 </li>
