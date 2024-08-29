@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 
-from .models import Course, Lesson, QuizScore, Quiz
+from .models import Course, Module, Lesson, QuizScore, Quiz
 
 
 @login_required
@@ -27,70 +28,48 @@ def home_view(request):
 
 
 @login_required
-def course_detail_view(request, course_id, lesson_id=None):
+def course_detail_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    if lesson_id:
-        lesson = get_object_or_404(Lesson, id=lesson_id)
-    else:
-        lesson = course.modules.all().first().lessons.all().first()
+    modules = course.modules.all()
 
+    breadcrumbs = [
+        {'title': 'Courses', 'url': reverse('home')},
+        {'title': course.title, 'url': request.path},
+    ]
+    return render(request, 'course_detail.html', {'course': course, 'modules': modules, 'breadcrumbs': breadcrumbs})
+
+
+@login_required
+def module_detail_view(request, course_id, module_id):
+    module = get_object_or_404(Module, id=module_id)
+    course = module.course
+    lessons = module.lessons.all()
+    breadcrumbs = [
+        {'title': 'Courses', 'url': reverse('home')},
+        {'title': course.title, 'url': reverse('course_detail', args=[course_id])},
+        {'title': module.title, 'url': request.path},
+    ]
+    return render(request, 'module_detail.html',
+                  {'module': module, 'lessons': lessons, 'breadcrumbs': breadcrumbs, 'course': course})
+
+
+@login_required
+def lesson_detail_view(request, course_id, module_id, lesson_id):
+    course = get_object_or_404(Course, id=course_id)
+    module = get_object_or_404(Module, id=module_id, course=course)
+    lesson = get_object_or_404(Lesson, id=lesson_id, module=module)
     quiz = lesson.quizzes.first()
     user_score = None
-
-    quiz_data = {}
     if quiz:
         quiz_score = QuizScore.objects.filter(user=request.user, quiz=quiz).first()
         if quiz_score:
             user_score = quiz_score.score
-
-        questions = quiz.questions.all()
-        quiz_data = {
-            "quiz": [
-                {
-                    "question": q.question_text,
-                    "options": [opt.option_text for opt in q.options.all()],
-                    "correct_answer": q.correct_answer
-                }
-                for q in questions
-            ]
-        }
-
-    return render(request, 'course_detail.html', {
-        'course': course,
-        'lesson': lesson,
-        'user_score': user_score,
-        'quiz_data': quiz_data,
-    })
-
-
-def lesson_detail_view(request, lesson_id):
-    lesson = get_object_or_404(Lesson, id=lesson_id)
-    quiz = lesson.quizzes.first()
-    user_score = None
-
-    quiz_data = {}
-    if quiz:
-        quiz_score = QuizScore.objects.filter(user=request.user, quiz=quiz).first()
-        if quiz_score:
-            user_score = quiz_score.score
-
-        questions = quiz.questions.all()
-        quiz_data = {
-            "quiz": [
-                {
-                    "question": q.question_text,
-                    "options": [opt.option_text for opt in q.options.all()],
-                    "correct_answer": q.correct_answer
-                }
-                for q in questions
-            ]
-        }
 
     return render(request, 'lesson_detail.html', {
-
+        'course': course,
+        'module': module,
         'lesson': lesson,
         'user_score': user_score,
-        'quiz_data': quiz_data,
     })
 
 
@@ -124,4 +103,5 @@ def submit_quiz_score(request, lesson_id):
             user=request.user,
             quiz=quiz,
             defaults={'score': score})
-        return redirect('lesson_detail', course_id=lesson.module.course.id, lesson_id=lesson_id)
+        return redirect('lesson_detail', course_id=lesson.module.course.id, module_id=lesson.module.id,
+                        lesson_id=lesson_id)
