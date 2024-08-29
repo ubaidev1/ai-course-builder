@@ -23,7 +23,7 @@
             <ul class="nav flex-column ms-3 bulleted-list-lessons">
                 {% for lesson in module.lessons.all %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lesson_detail' lesson.id %}">
+                    <a class="nav-link" href="{% url 'lesson_detail' course.id lesson.id %}">
                         <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
                     </a>
                 </li>
