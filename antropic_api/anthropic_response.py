@@ -40,7 +40,6 @@ def create_prompt_from_template(pdf_text, prompt_template):
                 {prompt_template}
             """
 
-
 def send_prompt_to_claude(client, prompt, model, max_tokens, temperature, system):
     """Send the prompt to the Claude API and get a response."""
     return client.messages.create(
