@@ -63,42 +63,6 @@ def course_detail_view(request, course_id, lesson_id=None):
     })
 
 
-@login_required
-def lesson_detail_view(request, course_id, lesson_id):
-    course = get_object_or_404(Course, id=course_id)
-    lesson = get_object_or_404(Lesson, id=lesson_id)
-    quiz = lesson.quizzes.first()
-    user_score = None
-    if quiz:
-        quiz_score = QuizScore.objects.filter(user=request.user, quiz=quiz).first()
-        if quiz_score:
-            user_score = quiz_score.score
-
-    return render(request, 'lesson_detail.html', {
-        'course': course,
-        'lesson': lesson,
-        'user_score': user_score,
-    })
-
-
-@login_required
-def quiz_view(request, lesson_id):
-    lesson = get_object_or_404(Lesson, id=lesson_id)
-    quiz = lesson.quizzes.first()
-    questions = quiz.questions.all()
-    quiz_data = {
-        "quiz": [
-            {
-                "question": q.question_text,
-                "options": [opt.option_text for opt in q.options.all()],
-                "correct_answer": q.correct_answer
-            }
-            for q in questions
-        ]
-    }
-    return render(request, 'quiz.html', {'quiz_data': quiz_data, 'lesson': lesson, 'quiz': quiz})
-
-
 @login_required()
 def submit_quiz_score(request, lesson_id):
     lesson = get_object_or_404(Lesson, id=lesson_id)
