@@ -6,7 +6,7 @@
 
 {% block breadcrumbs %}
 <li class="breadcrumb-item"><a href="{% url 'home' %}">Courses</a></li>
-<li class="breadcrumb-item"><a href="{% url 'course_detail' course.id %}">{{ course.title }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'course_detail' course.id lesson.id %}">{{ course.title }}</a></li>
 
 {% endblock %}
 
@@ -23,7 +23,7 @@
             <ul class="nav flex-column ms-3 bulleted-list-lessons">
                 {% for lesson in module.lessons.all %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'lesson_detail' course.id lesson.id %}">
+                    <a class="nav-link" href="{% url 'course_detail' course.id lesson.id %}">
                         <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
                     </a>
                 </li>
@@ -73,11 +73,14 @@
                     <div class="result" id="result"></div>
 
                     <!-- Hidden form to submit the score -->
-                    <form id="submit-form" method="POST" action="{% url 'submit_quiz_score' lesson.id %}">
+                    {% if next_lesson %}
+                    <form id="submit-form" method="POST"
+                          action="{% url 'submit_quiz_score' course.id lesson.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="final_score" id="final_score" value="0">
                         <button type="submit" class="submit-score" id="submit-button">Submit Score</button>
                     </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
