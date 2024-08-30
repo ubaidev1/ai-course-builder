@@ -40,6 +40,7 @@ def create_prompt_from_template(pdf_text, prompt_template):
                 {prompt_template}
             """
 
+
 def send_prompt_to_claude(client, prompt, model, max_tokens, temperature, system):
     """Send the prompt to the Claude API and get a response."""
     return client.messages.create(
@@ -100,7 +101,6 @@ def get_ai_course_details(config_file, pdf_file_path):
 
     # Extract and parse the JSON from Claude's response
     return extract_json_from_message(message)
-
 
 # Run the main function
 # if __name__ == "__main__":
