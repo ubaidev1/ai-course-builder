@@ -31,13 +31,14 @@ def extract_text_from_pdf(pdf_path):
 def create_prompt_from_template(pdf_text, prompt_template):
     """Combine the prompt template with the PDF content."""
     return f"""
-                   Here is the content of the PDF:
-                   <pdf_content>
-                   {pdf_text}
-                   </pdf_content>
-                   {prompt_template}
-               """
+                Here is the content of the PDF:
 
+                <pdf_content>
+                {pdf_text}
+                </pdf_content>
+
+                {prompt_template}
+            """
 
 
 def send_prompt_to_claude(client, prompt, model, max_tokens, temperature, system):
@@ -100,6 +101,7 @@ def get_ai_course_details(config_file, pdf_file_path):
 
     # Extract and parse the JSON from Claude's response
     return extract_json_from_message(message)
+
 
 # Run the main function
 # if __name__ == "__main__":
