@@ -87,7 +87,7 @@
                           action="{% url 'submit_quiz_score' course.id lesson.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="final_score" id="final_score" value="0">
-                        <button type="submit" class="submit-score" id="submit-button">Submit Score</button>
+                        <button type="submit" class="submit-score" id="submit-button">Next</button>
                     </form>
                     {% endif %}
                 </div>

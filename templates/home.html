@@ -31,7 +31,7 @@ Home - Course Listing
                             {{ course_data.progress|floatformat:2 }}%
                         </div>
                     </div>
-                    {% if course_progress != 100 %}
+                    {% if progress == 100.0 %}
                     <div class="mt-auto">
                         <a href="" class="btn btn-primary">Completed</a>
                     </div>

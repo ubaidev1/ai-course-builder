@@ -9,7 +9,10 @@ from .models import Course, Lesson, QuizScore, Quiz
 @login_required
 def home_view(request):
     course_progress = get_course_progress(request.user)
-    return render(request, 'home.html', {'course_progress': course_progress})
+ 
+    progress= course_progress[0]['progress']
+
+    return render(request, 'home.html', {'course_progress': course_progress, 'progress':progress})
 
 
 @login_required
