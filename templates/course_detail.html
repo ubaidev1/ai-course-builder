@@ -76,7 +76,7 @@
             <div class="card flip-card-back">
                 <div class="quiz-container">
                     <div class="header">Quiz</div>
-                    <div class="score">Score: <span id="score">0</span></div>
+                    <div class="score">Points: <span id="score">&nbsp;0</span></div>
                     <div class="question" id="question"></div>
                     <div class="options" id="options-container"></div>
                     <div class="result" id="result"></div>
@@ -128,27 +128,41 @@
         background: #ffffff;
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
+        padding: 10px !important;
         text-align: center;
     }
 
     .header {
         font-size: 24px;
         font-weight: 600;
-        margin-bottom: 20px;
+        margin-bottom: 0px !important;
         color: #333;
     }
 
     .score {
-        font-size: 18px;
-        font-weight: 500;
-        margin-bottom: 20px;
-        color: #444;
-    }
+    font-size: 18px;
+    font-weight: 500 ;
+    position: relative;
+    top: -115px !important;
+    left: 850px !important;
+    background-color: #4F46E5 !important; /* Updated to match the quiz options */
+    color: #ffffff;
+    width: 110px !important;
+    height: 40px;
+    border-radius: 20px; /* Keeps the corners rounded */
+    padding: 10px 20px;
+    z-index: 10;
+    text-align: center; /* Center the text horizontally */
+    line-height: 20px; /* Center the text vertically */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
     .question {
         font-size: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 20px !important;
         color: #222;
         font-weight: 500;
     }
@@ -181,6 +195,7 @@
 
     .options button {
         width: calc(100% - 20px);
+        max-width: 600px; /* Set the maximum width */
         padding: 15px;
         margin: 10px 0;
         border: none;
@@ -192,6 +207,12 @@
         transition: background-color 0.3s, transform 0.2s;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
+
+    .card {
+    border: none; /* Ensure no border */
+    margin: 0; /* Ensure no margin */
+    padding: 0; /* Ensure no padding */
+}
 
     .options button:hover:not(:disabled) {
         background-color: #674fbe;
@@ -247,6 +268,7 @@
         }
     }
 </style>
+
 
 <script>
     const quizData = {{ quiz_data|safe }};
