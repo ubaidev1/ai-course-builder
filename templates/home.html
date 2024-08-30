@@ -31,11 +31,15 @@ Home - Course Listing
                             {{ course_data.progress|floatformat:2 }}%
                         </div>
                     </div>
-
+                    {% if course_progress != 100 %}
+                    <div class="mt-auto">
+                        <a href="" class="btn btn-primary">Completed</a>
+                    </div>
+                    {% else %}
                     <div class="mt-auto">
                         <a href="{% url 'next_lesson' course_data.course.id %}" class="btn btn-primary">View Course</a>
-
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
