@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-<li class="breadcrumb-item"><a href="{% url 'home' %}">Courses</a></li>
-<li class="breadcrumb-item"><a href="{% url 'course_detail' course.id lesson.id %}">{{ course.title }}</a></li>
+<li class="breadcrumb-item"><a  style="text-decoration:none"; href="{% url 'home' %}">Courses</a></li>
+<li class="breadcrumb-item"><a style="text-decoration:none" href="{% url 'course_detail' course.id lesson.id %}">{{ course.title }}</a></li>
 
 {% endblock %}
 
@@ -145,15 +145,15 @@
     position: relative;
     top: -115px !important;
     left: 850px !important;
-    background-color: #4F46E5 !important; /* Updated to match the quiz options */
+    background-color: #4F46E5 !important;
     color: #ffffff;
     width: 110px !important;
     height: 40px;
-    border-radius: 20px; /* Keeps the corners rounded */
+    border-radius: 20px;
     padding: 10px 20px;
     z-index: 10;
-    text-align: center; /* Center the text horizontally */
-    line-height: 20px; /* Center the text vertically */
+    text-align: center; 
+    line-height: 20px; 
     display: flex;
     align-items: center;
     justify-content: center;
@@ -168,7 +168,7 @@
     }
     body {
     background-color: #000000;
-    color: #ffffff; /* Ensure the text is visible on the black background */
+    color: #ffffff;
     }
 
 
@@ -192,10 +192,13 @@
         flex-direction: column;
         align-items: center;
     }
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: #4F46E5;
+    }
 
     .options button {
         width: calc(100% - 20px);
-        max-width: 600px; /* Set the maximum width */
+        max-width: 600px; 
         padding: 15px;
         margin: 10px 0;
         border: none;
@@ -209,9 +212,9 @@
     }
 
     .card {
-    border: none; /* Ensure no border */
-    margin: 0; /* Ensure no margin */
-    padding: 0; /* Ensure no padding */
+    border: none; 
+    margin: 0; 
+    padding: 0;
 }
 
     .options button:hover:not(:disabled) {
@@ -220,11 +223,11 @@
     }
 
     .options button.correct {
-        background-color: #28a745; /* Green for correct */
+        background-color: #28a745; 
     }
 
     .options button.incorrect {
-        background-color: #dc3545; /* Red for incorrect */
+        background-color: #dc3545; 
     }
 
     .options button:disabled {
