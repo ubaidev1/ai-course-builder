@@ -8,23 +8,7 @@ from .models import Course, Lesson, QuizScore, Quiz
 
 @login_required
 def home_view(request):
-    courses = Course.objects.all()
-    course_progress = []
-    for course in courses:
-        total_quizzes = Quiz.objects.filter(lesson__module__course=course).count()
-        completed_quizzes = QuizScore.objects.filter(
-            user=request.user,
-            quiz__lesson__module__course=course
-        ).count()
-        if total_quizzes > 0:
-            progress_percentage = (completed_quizzes / total_quizzes) * 100
-        else:
-            progress_percentage = 0
-        course_progress.append({
-            'course': course,
-            'progress': progress_percentage
-        })
-
+    course_progress = get_course_progress(request.user)
     return render(request, 'home.html', {'course_progress': course_progress})
 
 
@@ -81,6 +65,8 @@ def submit_quiz_score(request, course_id, lesson_id):
             quiz=quiz,
             defaults={'score': score})
         next_lesson = get_next_lesson(course, request.user)
+        if not next_lesson:
+            return redirect('home')
         return redirect('course_detail', course_id=lesson.module.course.id,
                         lesson_id=next_lesson)
 
@@ -91,4 +77,25 @@ def get_next_lesson(course, user):
         Q(user_scores__user=user)
     )
     first_quiz = unattempted_quizzes.order_by('created_at').first()
-    return first_quiz.lesson.id
+    if first_quiz:
+        return first_quiz.lesson.id
+
+
+def get_course_progress(user):
+    courses = Course.objects.all()
+    course_progress = []
+    for course in courses:
+        total_quizzes = Quiz.objects.filter(lesson__module__course=course).count()
+        completed_quizzes = QuizScore.objects.filter(
+            user=user,
+            quiz__lesson__module__course=course
+        ).count()
+        if total_quizzes > 0:
+            progress_percentage = (completed_quizzes / total_quizzes) * 100
+        else:
+            progress_percentage = 0
+        course_progress.append({
+            'course': course,
+            'progress': progress_percentage
+        })
+        return course_progress

@@ -15,6 +15,7 @@
 <ul class="nav flex-column">
     {% for module in course.modules.all %}
     <li class="nav-item">
+        <!-- Admin users can navigate -->
         <a class="nav-link" data-bs-toggle="collapse" href="#module-{{ module.id }}" role="button"
            aria-expanded="false" aria-controls="module-{{ module.id }}">
             <i class="bi bi-book"></i> {{ module.title }}
@@ -23,9 +24,17 @@
             <ul class="nav flex-column ms-3 bulleted-list-lessons">
                 {% for lesson in module.lessons.all %}
                 <li class="nav-item">
+                    {% if user.is_staff %}
+                    <!-- Admin users can navigate -->
                     <a class="nav-link" href="{% url 'course_detail' course.id lesson.id %}">
                         <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
                     </a>
+                    {% else %}
+                    <!-- Non-admin users can only view -->
+                    <span class="nav-link">
+                        <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
+                    </span>
+                    {% endif %}
                 </li>
                 {% empty %}
                 <li class="nav-item">
@@ -284,7 +293,6 @@
                     document.getElementById('result').innerText = `Final Score: ${score}`;
                     document.querySelectorAll('#options-container button').forEach(btn => btn.style.display = 'none');
 
-                    // Show the submit button and set the final score
                     document.getElementById('final_score').value = score;
                     document.getElementById('submit-button').style.display = 'inline-block';
                 }
@@ -296,7 +304,6 @@
         }
         document.getElementById('score').innerText = score;
     }
-
     document.getElementById('next-button').addEventListener('click', () => {
         document.getElementById('flip-card').classList.add('flipped');
         loadQuestion();
