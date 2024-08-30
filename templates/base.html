@@ -84,11 +84,13 @@
     </style>
 </head>
 <body>
+    {% if request.path != '/login/' %}
     {% include 'navbar.html' %}
+    {% endif %}
 
 <div class="container-fluid">
     <div class="row">
-        {% if not request.path in excluded_sidebar_paths %}
+        {% if request.path != '/' and request.path != '/home/' and request.path != '/login/' and request.path != '/result/' %}
         <!-- Sidebar -->
         <nav class="col-md-3 sidebar">
             {% block sidebar %}
