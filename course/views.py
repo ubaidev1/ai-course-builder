@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 
@@ -23,20 +24,22 @@ def home_view(request):
             'course': course,
             'progress': progress_percentage
         })
+
     return render(request, 'home.html', {'course_progress': course_progress})
 
 
 @login_required
-def course_detail_view(request, course_id, lesson_id=None):
+def next_lesson_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    if lesson_id:
-        lesson = get_object_or_404(Lesson, id=lesson_id)
-    else:
-        lesson = course.modules.all().first().lessons.all().first()
+    next_lesson = get_next_lesson(course, request.user)
+    return redirect('course_detail', course_id=course_id, lesson_id=next_lesson)
 
+
+@login_required
+def course_detail_view(request, course_id, lesson_id):
+    lesson = get_object_or_404(Lesson, id=lesson_id)
     quiz = lesson.quizzes.first()
     user_score = None
-
     quiz_data = {}
     if quiz:
         quiz_score = QuizScore.objects.filter(user=request.user, quiz=quiz).first()
@@ -54,17 +57,19 @@ def course_detail_view(request, course_id, lesson_id=None):
                 for q in questions
             ]
         }
-
-    return render(request, 'course_detail.html', {
-        'course': course,
-        'lesson': lesson,
-        'user_score': user_score,
-        'quiz_data': quiz_data,
-    })
+        course = get_object_or_404(Course, id=course_id)
+        next_lesson = get_next_lesson(course, request.user)
+        return render(request, 'course_detail.html', {
+            'course': course,
+            'lesson': lesson,
+            'user_score': user_score,
+            'quiz_data': quiz_data,
+            'next_lesson': next_lesson})
 
 
 @login_required()
-def submit_quiz_score(request, lesson_id):
+def submit_quiz_score(request, course_id, lesson_id):
+    course = get_object_or_404(Course, id=course_id)
     lesson = get_object_or_404(Lesson, id=lesson_id)
     quiz = lesson.quizzes.first()
     if not quiz:
@@ -75,5 +80,15 @@ def submit_quiz_score(request, lesson_id):
             user=request.user,
             quiz=quiz,
             defaults={'score': score})
-        return redirect('lesson_detail', course_id=lesson.module.course.id,
-                        lesson_id=lesson_id)
+        next_lesson = get_next_lesson(course, request.user)
+        return redirect('course_detail', course_id=lesson.module.course.id,
+                        lesson_id=next_lesson)
+
+
+def get_next_lesson(course, user):
+    quizzes = Quiz.objects.filter(lesson__module__course=course)
+    unattempted_quizzes = quizzes.exclude(
+        Q(user_scores__user=user)
+    )
+    first_quiz = unattempted_quizzes.order_by('created_at').first()
+    return first_quiz.lesson.id
