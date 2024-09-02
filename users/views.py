@@ -40,6 +40,27 @@ def signup(request):
     return render(request, 'signup.html')
 
 
+def admin_signup(request):
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        if not first_name or not last_name or not email or not password:
+            messages.error(request, 'Please fill in all fields.')
+        elif User.objects.filter(email=email).exists():
+            messages.error(request, 'An account with this email already exists.')
+        else:
+            User.objects.create_superuser(
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name)
+            return redirect('login')
+    return render(request, 'signup.html')
+
+
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
