@@ -84,7 +84,7 @@
     </style>
 </head>
 <body>
-    {% if request.path != '/login/' %}
+    {% if request.path != '/login/' and request.path != '/' %}
     {% include 'navbar.html' %}
     {% endif %}
 
