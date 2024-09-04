@@ -12,7 +12,7 @@ def home_view(request, course_id=None):
     if course_id:
         progress = next((cp['progress'] for cp in course_progress if cp['course'].id == course_id), None)
     else:
-        progress = None 
+        progress = None
     return render(request, 'home.html', {'course_progress': course_progress, 'progress': progress})
 
 
@@ -70,7 +70,7 @@ def submit_quiz_score(request, course_id, lesson_id):
             defaults={'score': score})
         next_lesson = get_next_lesson(course, request.user)
         if not next_lesson:
-            return redirect('home', course_id = course_id)
+            return redirect('home', course_id=course_id)
         return redirect('course_detail', course_id=lesson.module.course.id,
                         lesson_id=next_lesson)
 
