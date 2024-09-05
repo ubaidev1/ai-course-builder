@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Admin - Course Actions
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Create Course Button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Course Actions</h2>
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">Create a Course</a>
+    </div>
+
+    <!-- Display List of Courses -->
+    <div class="list-group">
+        {% if course %}
+            {% for c in course %}
+                <a href="" class="list-group-item list-group-item-action">
+                    {{ c.title }}
+                </a>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">No courses available.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -112,6 +112,18 @@ def dashboard(request):
 
 
 @login_required
+def course_actions(request):
+    if not request.user.is_admin:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('home')
+    context = {
+        'course': Course.objects.all()
+    }
+
+    return render(request, 'course_actions.html', context)
+
+
+@login_required
 def result_view(request):
     results = []
     search_query = request.GET.get('search', '')
