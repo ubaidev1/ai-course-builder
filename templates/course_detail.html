@@ -5,10 +5,13 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-<li class="breadcrumb-item"><a  style="text-decoration:none"; href="{% url 'home' %}">Courses</a></li>
-<li class="breadcrumb-item"><a style="text-decoration:none" href="{% url 'course_detail' course.id lesson.id %}">{{ course.title }}</a></li>
+<li class="breadcrumb-item"><a style="text-decoration:none" ; href="{% url 'home' %}">Courses</a></li>
+<li class="breadcrumb-item"><a style="text-decoration:none" href="{% url 'course_detail' course.id lesson.id %}">{{course.title}}
+
+</a></li>
 
 {% endblock %}
+
 
 {% block sidebar %}
 <h4>{{ course.title }}</h4>
@@ -51,6 +54,7 @@
     {% endfor %}
 </ul>
 {% endblock %}
+
 
 {% block content %}
 <div class="d-flex justify-content-center">
@@ -152,8 +156,8 @@
     border-radius: 20px;
     padding: 10px 20px;
     z-index: 10;
-    text-align: center; 
-    line-height: 20px; 
+    text-align: center;
+    line-height: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -166,11 +170,6 @@
         color: #222;
         font-weight: 500;
     }
-    body {
-    background-color: #000000;
-    color: #ffffff; /* Ensure the text is visible on the black background */
-    }
-
 
     .score {
         font-size: 18px;
@@ -198,7 +197,7 @@
 
     .options button {
         width: calc(100% - 20px);
-        max-width: 600px; 
+        max-width: 600px;
         padding: 15px;
         margin: 10px 0;
         border: none;
@@ -212,8 +211,8 @@
     }
 
     .card {
-    border: none; 
-    margin: 0; 
+    border: none;
+    margin: 0;
     padding: 0;
 }
 
@@ -223,11 +222,11 @@
     }
 
     .options button.correct {
-        background-color: #28a745; 
+        background-color: #28a745;
     }
 
     .options button.incorrect {
-        background-color: #dc3545; 
+        background-color: #dc3545;
     }
 
     .options button:disabled {
@@ -277,6 +276,7 @@
     const quizData = {{ quiz_data|safe }};
     let currentQuestionIndex = 0;
     let score = 0;
+    let answeredIncorrectly = false; // Flag to track if the question was answered incorrectly
 
     function loadQuestion() {
         const questionData = quizData.quiz[currentQuestionIndex];
@@ -293,6 +293,7 @@
         });
 
         document.getElementById('result').innerText = '';
+        answeredIncorrectly = false; // Reset the flag for the new question
     }
 
     function selectOption(optionIndex) {
@@ -305,7 +306,12 @@
 
         if (isCorrect) {
             selectedButton.classList.add('correct');
-            score += 10; // Add points for correct answer
+            // Add points based on whether the user answered incorrectly first
+            if (answeredIncorrectly) {
+                score += 5;
+            } else {
+                score += 10;
+            }
             document.getElementById('result').innerText = `Correct! Score: ${score}`;
 
             // Move to the next question after a short delay
@@ -326,9 +332,11 @@
             selectedButton.classList.add('incorrect');
             score -= 10; // Deduct points for incorrect answer
             document.getElementById('result').innerText = `Incorrect! Score: ${score}`;
+            answeredIncorrectly = true; // Set the flag to true if answered incorrectly
         }
         document.getElementById('score').innerText = score;
     }
+
     document.getElementById('next-button').addEventListener('click', () => {
         document.getElementById('flip-card').classList.add('flipped');
         loadQuestion();
@@ -336,4 +344,5 @@
 
     loadQuestion();
 </script>
+
 {% endblock %}
