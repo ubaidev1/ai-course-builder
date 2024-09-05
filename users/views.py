@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from antropic_api.anthropic_response import get_ai_course_details
@@ -117,10 +118,20 @@ def course_actions(request):
         messages.error(request, 'You do not have permission to access this page.')
         return redirect('home')
     context = {
-        'course': Course.objects.all()
+        'courses': Course.objects.all()
     }
-
     return render(request, 'course_actions.html', context)
+
+
+@login_required
+def toggle_course_publish(request, course_id):
+    if not request.user.is_admin:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+    course = get_object_or_404(Course, id=course_id)
+    course.is_published = not course.is_published
+    course.save()
+    return JsonResponse({'status': 'success', 'is_published': course.is_published})
 
 
 @login_required

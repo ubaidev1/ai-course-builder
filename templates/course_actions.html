@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Admin - Course Actions
+Admin - Course Actions
 {% endblock %}
 
 {% block content %}
@@ -12,17 +12,49 @@
         <a href="{% url 'dashboard' %}" class="btn btn-primary">Create a Course</a>
     </div>
 
-    <!-- Display List of Courses -->
     <div class="list-group">
-        {% if course %}
-            {% for c in course %}
-                <a href="" class="list-group-item list-group-item-action">
-                    {{ c.title }}
-                </a>
-            {% endfor %}
+        {% if courses %}
+        {% for course in courses %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+                {{ course.title }}
+            <div class="form-check form-switch">
+                <input class="form-check-input toggle-publish" type="checkbox" data-course-id="{{ course.id }}"
+                       {% if course.is_published %}checked{% endif %}>
+                <label class="form-check-label">
+                    Publish
+                </label>
+            </div>
+        </div>
+        {% endfor %}
         {% else %}
-            <p class="text-muted">No courses available.</p>
+        <p class="text-muted">No courses available.</p>
         {% endif %}
     </div>
 </div>
+
+<script>
+    // Handle toggling of the publish status
+    document.querySelectorAll('.toggle-publish').forEach(function(switchElement) {
+        switchElement.addEventListener('change', function() {
+            const courseId = this.dataset.courseId;
+            const isChecked = this.checked;
+            fetch(`/toggle-course-publish/${courseId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.status !== 'success') {
+                      alert('Failed to update the course publish status.');
+                      this.checked = !isChecked;
+                  }
+              }).catch(() => {
+                  alert('Failed to update the course publish status.');
+                  this.checked = !isChecked;
+              });
+        });
+    });
+</script>
 {% endblock %}
