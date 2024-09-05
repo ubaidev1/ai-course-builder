@@ -86,7 +86,6 @@
                 <ul class="list-group">
                     {% for course in courses %}
                     <li class="list-group-item">
-                        <!-- Course Title with Toggle Button -->
                         <div class="d-flex justify-content-between align-items-center">
                             <strong>{{ course.title }}</strong>
                             <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#course-{{ course.id }}">
@@ -94,16 +93,18 @@
                             </button>
                         </div>
 
-                        <!-- Course Breakdown (Initially Collapsed) -->
                         <div id="course-{{ course.id }}" class="collapse collapse-content">
+                                                        <p>{{course.description}}</p>
                             <ul>
                                 {% for module in course.modules.all %}
                                 <li>
                                     <strong>Module:</strong> {{ module.title }}
+                                    <p>{{module.description}}</p>
                                     <ul>
                                         {% for lesson in module.lessons.all %}
                                         <li>
                                             <strong>Lesson:</strong> {{ lesson.title }}
+                                            <p>{{lesson.content}}</p>
                                             <ul>
                                                 {% for quiz in lesson.quizzes.all %}
                                                 <li>
