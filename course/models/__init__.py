@@ -1,4 +1,5 @@
 from .course import Course
+from .course_enrollment import CourseEnrollment
 from .lesson import Lesson
 from .module import Module
 from .option import Option
