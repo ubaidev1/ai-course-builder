@@ -114,6 +114,11 @@
                         </div>
                     </div>
 
+                    <div>
+                        <!-- Display the user's total quiz score here -->
+                        <p><strong>Total Quiz Score:</strong> {{ course_data.obtained_score }}</p>
+                    </div>
+
                     <!-- Check Course Progress -->
                     {% if course_data.progress < 100.0 %}
                     <div class="mt-auto">
@@ -121,7 +126,8 @@
                     </div>
                     {% else %}
                     <div class="mt-auto">
-                        <a href="#" class="btn btn-primary">Completed</a>
+                        <a id="retake-quiz" href="{% url 'retake_quiz' course_data.course.id %}"
+                           class="btn btn-primary">Retake Quiz</a>
                     </div>
                     {% endif %}
 
