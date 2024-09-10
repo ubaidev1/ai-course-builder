@@ -10,9 +10,10 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from antropic_api.anthropic_response import get_ai_course_details
-from course.models import Course, Question, QuizScore
+from course.models import Course, Question, QuizScore, CourseEnrollment
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
+from services import TokenService, EmailServices
 from users.models import User
 
 
@@ -192,8 +193,10 @@ def invite_user(request):
         email = request.POST.get('email')
         course_id = request.POST.get('course_id')
 
-        selected_user = get_object_or_404(User, email=email)
-        selected_course = get_object_or_404(Course, id=course_id)
+        user = get_object_or_404(User, email=email)
+        course = get_object_or_404(Course, id=course_id)
+        invitation_link = TokenService.get_invitation_link(request.META.get('HTTP_ORIGIN'), course.id, user.id)
+        EmailServices.send_email_to_client(user, user.email, invitation_link)
 
     return render(request, 'invite_users.html', {
         'courses': courses,
@@ -202,8 +205,17 @@ def invite_user(request):
 
 
 @login_required
-def send_invite(request):
-    pass
+def accept_invitation(request, token):
+    course_id, user_id = TokenService.decode_token(token)
+    user = get_object_or_404(User, id=user_id)
+    course = get_object_or_404(Course, id=course_id)
+    if CourseEnrollment.objects.filter(user=user, course=course).exists():
+        messages.warning(request, 'You are already enrolled in this course.')
+    else:
+        user_enrollment = CourseEnrollment.objects.create(user=user, course=course)
+        user_enrollment.save()
+        messages.success(request, 'You have successfully enrolled in the course.')
+    return redirect('home')
 
 
 @login_required

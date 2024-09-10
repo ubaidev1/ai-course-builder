@@ -25,30 +25,30 @@
             <div id="user-section" style="display: none;">
                 <table class="table table-striped table-bordered">
                     <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>Action</th>
-                        </tr>
+                    <tr>
+                        <th>Email</th>
+                        <th>Action</th>
+                    </tr>
                     </thead>
                     <tbody id="user-list">
-                        {% for user in users %}
-                        <tr>
-                            <td>{{ user.email }}</td>
-                            <td>
-                                <!-- Invite button for each user -->
-                                <form action="" method="POST">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="email" value="{{ user.email }}">
-                                    <input type="hidden" id="selected-course" name="course_id" value="">
-                                    <button type="submit" class="btn btn-primary invite-button" disabled>Invite</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="2" class="text-center">No users available</td>
-                        </tr>
-                        {% endfor %}
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <!-- Invite button for each user -->
+                            <form action="{% url 'invite_user' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="email" value="{{ user.email }}">
+                                <input type="hidden" id="selected-course" name="course_id" value="">
+                                <button type="submit" class="btn btn-primary invite-button" disabled>Invite</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" class="text-center">No users available</td>
+                    </tr>
+                    {% endfor %}
                     </tbody>
                 </table>
             </div>
