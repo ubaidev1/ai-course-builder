@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .collapse-content {
+            padding-left: 20px;
+        }
+
+        .editable:hover {
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .save-cancel {
+            display: none;
+            margin-left: 10px;
+        }
+
+        .save-btn, .cancel-btn {
+            color: green;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            color: red;
+        }
+
+        input, textarea {
+            display: inline-block;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .textarea-custom {
+            width: 100%;
+            height: 100px;
+        }
+
+        .highlight {
+            background-color: #d4edda;
+        }
+
+    </style>
+</head>
+
+<body>
+{% include 'navbar.html' %}
+<div class="card">
+    <div class="card-header">
+        Course Listings
+    </div>
+    <div class="card-body">
+        <h5>Courses</h5>
+        <ul class="list-group">
+            {% for course in courses %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong id="course-title-{{ course.id }}">{{ course.title }}</strong>
+                    <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#course-{{ course.id }}">
+                        Edit Details
+                    </button>
+                </div>
+
+                <div id="course-{{ course.id }}" class="collapse collapse-content">
+                    <form id="course-form-{{ course.id }}"
+                          onsubmit="event.preventDefault(); saveCourse('{{ course.id }}')">
+                        <!-- Course Title -->
+                        <label>Course Title:</label>
+                        <input type="text" class="form-control mb-2" id="edit-course-title-{{ course.id }}"
+                               value="{{ course.title }}" disabled>
+
+                        <!-- Course Description -->
+                        <label>Course Description:</label>
+                        <textarea class="form-control mb-2" id="edit-course-description-{{ course.id }}" disabled>{{ course.description }}</textarea>
+
+                        <!-- Submit Button -->
+                        <button type="button" class="btn btn-primary mt-2"
+                                onclick="enableField('edit-course-title-{{ course.id }}')">Edit Title
+                        </button>
+                        <button type="button" class="btn btn-primary mt-2"
+                                onclick="enableField('edit-course-description-{{ course.id }}')">Edit Description
+                        </button>
+
+                        <ul>
+                            {% for module in course.modules.all %}
+                            <li>
+                                <strong id="module-title-{{ module.id }}">Module: {{ module.title }}</strong>
+                                <button class="btn btn-link" onclick="toggleEditModule('{{ module.id }}')">Edit Module
+                                </button>
+
+                                <div id="module-edit-{{ module.id }}" class="collapse collapse-content">
+                                    <!-- Module Title -->
+                                    <label>Module Title:</label>
+                                    <input type="text" class="form-control mb-2" id="edit-module-title-{{ module.id }}"
+                                           value="{{ module.title }}" disabled>
+
+                                    <!-- Edit/Save Buttons -->
+                                    <button type="button" class="btn btn-primary mt-2"
+                                            onclick="enableField('edit-module-title-{{ module.id }}')">Edit Module Title
+                                    </button>
+                                    <button type="button" class="btn btn-primary mt-2"
+                                            onclick="enableField('edit-module-description-{{ module.id }}')">Edit Module
+                                        Description
+                                    </button>
+                                    <!--                                <button type="submit" class="btn btn-success mt-2"-->
+                                    <!--                                        onclick="saveModule('{{ module.id }}', '{{ course.id }}')">Save-->
+                                    <!--                                </button>-->
+                                </div>
+
+                                <ul>
+                                    {% for lesson in module.lessons.all %}
+                                    <li>
+                                        <strong id="lesson-title-{{ lesson.id }}">Lesson: {{ lesson.title }}</strong>
+                                        <button class="btn btn-link" onclick="toggleEditLesson('{{ lesson.id }}')">Edit
+                                            Lesson
+                                        </button>
+
+                                        <div id="lesson-edit-{{ lesson.id }}" class="collapse collapse-content">
+                                            <!-- Lesson Title -->
+                                            <label>Lesson Title:</label>
+                                            <input type="text" class="form-control mb-2"
+                                                   id="edit-lesson-title-{{ lesson.id }}" value="{{ lesson.title }}"
+                                                   disabled>
+
+                                            <!-- Lesson Content -->
+                                            <label>Lesson Content:</label>
+                                            <textarea class="form-control mb-2" id="edit-lesson-content-{{ lesson.id }}"
+                                                      disabled>{{ lesson.content }}</textarea>
+
+                                            <!-- Edit/Save Buttons -->
+                                            <button type="button" class="btn btn-primary mt-2"
+                                                    onclick="enableField('edit-lesson-title-{{ lesson.id }}')">Edit
+                                                Lesson
+                                                Title
+                                            </button>
+                                            <button type="button" class="btn btn-primary mt-2"
+                                                    onclick="enableField('edit-lesson-content-{{ lesson.id }}')">Edit
+                                                Lesson
+                                                Content
+                                            </button>
+                                            <!--                                        <button type="submit" class="btn btn-success mt-2"-->
+                                            <!--                                                onclick="saveLesson('{{ lesson.id }}', '{{ module.id }}', '{{ course.id }}')">-->
+                                            <!--                                            Save-->
+                                            <!--                                        </button>-->
+                                        </div>
+
+                                        <ul>
+                                            {% for quiz in lesson.quizzes.all %}
+                                            <li>
+                                                <strong>Quiz:</strong> {{ quiz.title }}
+                                                <ul>
+                                                    {% for question in quiz.questions.all %}
+                                                    <li>
+                                                        <strong>Question:</strong> {{ question.question_text }}<br>
+                                                        <strong>Answer:</strong> {{ question.correct_answer }}
+                                                        <ul>
+                                                            {% for option in question.options.all %}
+                                                            <li>
+                                                                <strong>Option:</strong> {{ option.option_text }}
+                                                                {% if option.is_correct %}
+                                                                <span class="badge bg-success">Correct</span>
+                                                                {% endif %}
+                                                            </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
+
+                    </form>
+                    <button type="submit" class="btn btn-success mt-2">Save</button>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Function to toggle edit mode for courses
+    function toggleEditCourse(courseId) {
+        document.getElementById(`course-edit-${courseId}`).classList.toggle('collapse');
+    }
+
+    // Function to toggle edit mode for modules
+    function toggleEditModule(moduleId) {
+        document.getElementById(`module-edit-${moduleId}`).classList.toggle('collapse');
+    }
+
+    // Function to toggle edit mode for lessons
+    function toggleEditLesson(lessonId) {
+        document.getElementById(`lesson-edit-${lessonId}`).classList.toggle('collapse');
+    }
+
+    // Function to toggle edit mode for quizzes
+    function toggleEditQuiz(quizId) {
+        document.getElementById(`quiz-edit-${quizId}`).classList.toggle('collapse');
+    }
+
+    // Function to enable a field for editing
+    function enableField(fieldId) {
+        // Disable all other fields before enabling the selected field
+        const allInputs = document.querySelectorAll('input, textarea');
+        allInputs.forEach(input => input.disabled = true);
+
+        // Enable the selected field
+        document.getElementById(fieldId).disabled = false;
+    }
+
+    // Save the updated course data
+    function saveCourse(courseId) {
+        const title = document.getElementById(`edit-course-title-${courseId}`).value;
+        const description = document.getElementById(`edit-course-description-${courseId}`).value;
+        const moduleTitle = document.getElementById(`edit-module-title-${moduleId}`).value;
+        const lessonTitle = document.getElementById(`edit-lesson-title-${lessonId}`).value;
+        const lessonContent = document.getElementById(`edit-lesson-content-${lessonId}`).value;
+        // like this get quiz question quiz quiz options quiz answer
+
+        const data = {
+            course_name: title,
+            course_description: description,
+            modules : [{
+                module_title : moduleTitle,
+                module_lessons :
+                [{
+                    lesson_title : lessonTitle,
+                    lesson_content : lessonContent,
+                    quiz :
+                    [{
+                        question : question,
+                        options : [
+                        Option 1 ,
+                        Option 2 ,
+                        Option 3 ,
+                        ]
+                      correct_answer : correct_option
+                    }]
+
+                }]
+            }]
+        };
+
+        fetch(`/update-course/${courseId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Course updated successfully');
+                document.getElementById(`course-title-${courseId}`).textContent = title;
+            } else {
+                alert('Error updating course: ' + data.error);
+            }
+        });
+    }
+
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
