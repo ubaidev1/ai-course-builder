@@ -31,10 +31,19 @@ Admin - Course Actions
         </div>
 
         <!-- Hidden email input form for invite -->
-        <div class="list-group-item invite-form" id="invite-form-{{ course.id }}" style="display: none;">
-            <input type="email" id="email-{{ course.id }}" class="form-control" placeholder="Enter email to invite">
-            <button class="btn btn-primary mt-2 send-invite-button" data-course-id="{{ course.id }}">Send Invite</button>
+        <div class="list-group-item invite-form p-4 bg-light border rounded shadow-sm" id="invite-form-{{ course.id }}" style="display: none;">
+            <form class="row g-3 align-items-center">
+                <!-- Increase the email input field to take up more space -->
+                <div class="col-md-9">
+                    <input type="email" id="email-{{ course.id }}" class="form-control" placeholder="Enter email to invite" required>
+                </div>
+                <!-- Adjust the button column with more precise alignment -->
+                <div class="col-md-3 d-flex justify-content-end">
+                    <button type="button" class="btn btn-primary send-invite-button ms-auto" data-course-id="{{ course.id }}">Send Invite</button>
+                </div>
+            </form>
         </div>
+        
         {% endfor %}
         {% else %}
         <p class="text-muted">No courses available.</p>
@@ -103,4 +112,20 @@ Admin - Course Actions
         });
     });
 </script>
+
+<!-- Mobile responsiveness styles -->
+<style>
+    @media (max-width: 768px) {
+        /* Make the email input field take up full width */
+        .invite-form .form-control {
+            width: 100%;
+        }
+
+        /* Make the send invite button take up full width and adjust alignment */
+        .invite-form .send-invite-button {
+            width: 100%;
+            margin-top: 10px;
+        }
+    }
+</style>
 {% endblock %}
