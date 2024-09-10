@@ -9,45 +9,52 @@ Admin - Course Results
     <h1 class="text-center mb-4">Course Results</h1>
 
     <!-- Search and Filter Form -->
-  <form method="GET" class="form-inline mb-4">
-    <input type="text" name="search" class="form-control mr-2 mb-4" placeholder="Search by username or email"
-           value="{{ search_query }}">
-    <select name="course" class="form-control mr-2">
-        <option value="">All Courses</option>
-        {% for course in courses %}
-            <option value="{{ course.id }}"
-                    {% if course.id|stringformat:"s" == selected_course_id %}selected{% endif %}>
-                {{ course.title }}
-            </option>
-        {% endfor %}
-    </select>
-    <button type="submit" class="btn btn-warning mt-2">Search</button>
-</form>
+    <form method="GET" class="form-inline mb-4 row">
+        <div class="col-12 col-md-6 mb-2">
+            <input type="text" name="search" class="form-control w-100" placeholder="Search by username or email" value="{{ search_query }}">
+        </div>
+        <div class="col-12 col-md-4 mb-2">
+            <select name="course" class="form-control w-100">
+                <option value="">All Courses</option>
+                {% for course in courses %}
+                    <option value="{{ course.id }}"
+                            {% if course.id|stringformat:"s" == selected_course_id %}selected{% endif %}>
+                        {{ course.title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-2">
+            <button type="submit" class="btn btn-warning w-100">Search</button>
+        </div>
+    </form>
 
-    <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">Course</th>
-                <th scope="col">Username</th>
-                <th scope="col">Email</th>
-                <th scope="col">Obtained Score</th>
-                <th scope="col">Total Score</th>
-                <th scope="col">Percentage</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in results %}
-            <tr>
-                <td>{{ result.course }}</td>
-                <td>{{ result.username }}</td>
-                <td>{{ result.email }}</td>
-                <td>{{ result.obtained_score }}</td>
-                <td>{{ result.total_score }}</td>
-                <td>{{ result.percentage|floatformat:2 }}%</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Course</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Obtained Score</th>
+                    <th scope="col">Total Score</th>
+                    <th scope="col">Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.course }}</td>
+                    <td>{{ result.username }}</td>
+                    <td>{{ result.email }}</td>
+                    <td>{{ result.obtained_score }}</td>
+                    <td>{{ result.total_score }}</td>
+                    <td>{{ result.percentage|floatformat:2 }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     {% if not results %}
     <p class="text-center">No results available.</p>
@@ -55,7 +62,7 @@ Admin - Course Results
 </div>
 {% endblock %}
 
-<!-- Additional CSS for enhanced table styling -->
+<!-- Additional CSS for enhanced table styling and responsiveness -->
 <style>
     .table {
         margin-top: 30px;
@@ -69,5 +76,12 @@ Admin - Course Results
 
     tbody tr {
         background-color: #f8f9fa;
+    }
+
+    @media (max-width: 576px) {
+        .form-inline .form-control, .form-inline .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
     }
 </style>
