@@ -13,6 +13,7 @@ from antropic_api.anthropic_response import get_ai_course_details
 from course.models import Course, Question, QuizScore
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
+from scripts.update_course import update_course
 from users.models import User
 
 
@@ -93,6 +94,7 @@ def dashboard(request):
         return redirect('home')
     try:
         if request.method == 'POST' and request.FILES.get('pdf_file'):
+            course_name = request.POST.get('course_name')
             pdf_file = request.FILES['pdf_file']
             fs = FileSystemStorage(location='/tmp')
             filename = fs.save(pdf_file.name, pdf_file)
@@ -100,7 +102,7 @@ def dashboard(request):
 
             json_data = get_ai_course_details('config.json', pdf_file_path)
             data = json.loads(json_data)
-            create_course(data)
+            create_course(data, course_name)
             os.remove(pdf_file_path)
         courses = Course.objects.all()
         return render(request, 'dashboard.html', {'courses': courses})
@@ -110,6 +112,20 @@ def dashboard(request):
             'courses': Course.objects.all(),
             'error_message': f"An unexpected error occurred: {str(e)}"
         })
+
+
+@login_required
+def edit_courses(request):
+    if not request.user.is_admin:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('home')
+
+    if request.method == 'POST':
+        course_id = request.POST.get('course_id')
+        update_course(request, course_id)
+    courses = Course.objects.all()
+    return render(request, 'edit-courses.html', {'courses': courses})
+
 
 
 @login_required
