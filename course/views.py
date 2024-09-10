@@ -8,12 +8,24 @@ from .models import Course, Lesson, QuizScore, Quiz
 
 @login_required
 def home_view(request, course_id=None):
+    # Get the user's course progress (which includes both progress and obtained score)
     course_progress = get_course_progress(request.user)
+
+    progress = None
+    quiz_score = None
+
     if course_id:
-        progress = next((cp['progress'] for cp in course_progress if cp['course'].id == course_id), None)
-    else:
-        progress = None
-    return render(request, 'home.html', {'course_progress': course_progress, 'progress': progress})
+        # Fetch course-specific progress and quiz score from the course_progress data
+        course_data = next((cp for cp in course_progress if cp['course'].id == course_id), None)
+        if course_data:
+            progress = course_data['progress']
+            quiz_score = course_data['obtained_score']
+
+    return render(request, 'home.html', {
+        'course_progress': course_progress,
+        'progress': progress,
+        'quiz_scores': quiz_score
+    })
 
 
 @login_required
@@ -21,6 +33,23 @@ def next_lesson_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     next_lesson = get_next_lesson(course, request.user)
     return redirect('course_detail', course_id=course_id, lesson_id=next_lesson)
+
+
+@login_required
+def retake_quiz(request, course_id):
+    # Delete the user's existing quiz scores for the given course
+    QuizScore.objects.filter(user=request.user, quiz__lesson__module__course_id=course_id).delete()
+
+    # After resetting, take the user to the first lesson in the course
+    course = get_object_or_404(Course, id=course_id)
+    next_lesson = get_next_lesson(course, request.user)
+
+    # Redirect to the next lesson
+    if next_lesson:
+        return redirect('course_detail', course_id=course_id, lesson_id=next_lesson)
+    else:
+        # Handle the case when there are no more lessons/quizzes left
+        return redirect('home')
 
 
 @login_required
@@ -94,12 +123,21 @@ def get_course_progress(user):
             user=user,
             quiz__lesson__module__course=course
         ).count()
+
+        # Calculate course progress
         if total_quizzes > 0:
             progress_percentage = (completed_quizzes / total_quizzes) * 100
         else:
             progress_percentage = 0
+
+        # Calculate user's total quiz score for the course
+        user_quiz_scores = QuizScore.objects.filter(user=user, quiz__lesson__module__course=course)
+        obtained_score = sum([quiz_score.score for quiz_score in user_quiz_scores])
+
+        # Append the course data with progress and obtained score
         course_progress.append({
             'course': course,
-            'progress': progress_percentage
+            'progress': progress_percentage,
+            'obtained_score': obtained_score,  # add obtained score to the context
         })
     return course_progress
