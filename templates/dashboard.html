@@ -26,181 +26,189 @@
 </head>
 
 <body>
-    {% include 'navbar.html' %}
+{% include 'navbar.html' %}
 
-    <div class="container">
-        <h1 class="text-center mb-5">Admin Dashboard</h1>
+<div class="container">
+    <h1 class="text-center mb-5">Admin Dashboard</h1>
 
-        <!-- PDF File Upload Form for New Course Content -->
-        <div class="card">
-            <div class="card-header">
-                <h5><b>Upload PDF File for Creating New Course Content.</b></h5>
-            </div>
-            <div class="card-body">
-                <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data" onsubmit="return validateFile()">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="pdfFile" class="form-label">Select PDF File:</label>
-                        <input class="form-control" type="file" id="pdfFile" name="pdf_file" accept="application/pdf" required>
-                    </div>
-                    <button type="submit" class="btn btn-warning">Upload</button>
-                </form>
-                <div id="fileError" class="text-danger mt-2"></div>
-            </div>
+    <!-- PDF File Upload Form for New Course Content -->
+    <div class="card">
+        <div class="card-header">
+            <h5><b>Upload PDF File for Creating New Course Content.</b></h5>
         </div>
-
-        <!-- PDF File Upload Form for Existing Course Content -->
-        <div class="card">
-            <div class="card-header">
-                <h5><b>Upload PDF File for Generating Content for Existing Course.</b></h5>
-            </div>
-            <div class="card-body">
-                <form action="{% url 'extend_course' %}" method="post" enctype="multipart/form-data" onsubmit="return validateFileWithCourse()">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="existingCourse" class="form-label">Select Course:</label>
-                        <select class="form-control" id="existingCourse" name="course_id" required>
-                            <option value="">Select a course</option>
-                            {% for course in courses %}
-                            <option value="{{ course.id }}">{{ course.title }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="pdfFileExisting" class="form-label">Select PDF File:</label>
-                        <input class="form-control" type="file" id="pdfFileExisting" name="pdf_file" accept="application/pdf" required>
-                    </div>
-                    <button type="submit" class="btn btn-warning">Upload</button>
-                </form>
-                <div id="fileErrorExisting" class="text-danger mt-2"></div>
-            </div>
-        </div>
-
-        <!-- Listings of Courses -->
-        <div class="card">
-            <div class="card-header">
-                Course Listings
-            </div>
-            <div class="card-body">
-                <h5>Courses</h5>
-                <ul class="list-group">
-                    {% for course in courses %}
-                    <li class="list-group-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <strong>{{ course.title }}</strong>
-                            <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#course-{{ course.id }}">
-                                View Details
-                            </button>
-                        </div>
-
-                        <div id="course-{{ course.id }}" class="collapse collapse-content">
-                                                        <p>{{course.description}}</p>
-                            <ul>
-                                {% for module in course.modules.all %}
-                                <li>
-                                    <strong>Module:</strong> {{ module.title }}
-                                    <p>{{module.description}}</p>
-                                    <ul>
-                                        {% for lesson in module.lessons.all %}
-                                        <li>
-                                            <strong>Lesson:</strong> {{ lesson.title }}
-                                            <p>{{lesson.content}}</p>
-                                            <ul>
-                                                {% for quiz in lesson.quizzes.all %}
-                                                <li>
-                                                    <strong>Quiz:</strong> {{ quiz.title }}
-                                                    <ul>
-                                                        {% for question in quiz.questions.all %}
-                                                        <li>
-                                                            <strong>Question:</strong> {{ question.question_text }}<br>
-                                                            <strong>Answer:</strong> {{ question.correct_answer }}
-                                                            <ul>
-                                                                {% for option in question.options.all %}
-                                                                <li>
-                                                                    <strong>Option:</strong> {{ option.option_text }}
-                                                                    {% if option.is_correct %}
-                                                                    <span class="badge bg-success">Correct</span>
-                                                                    {% endif %}
-                                                                </li>
-                                                                {% endfor %}
-                                                            </ul>
-                                                        </li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="card-body">
+            <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data"
+                  onsubmit="return validateFile()">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="courseName" class="form-label">Course Name:</label>
+                    <input class="form-control" type="text" id="courseName" name="course_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="pdfFile" class="form-label">Select PDF File:</label>
+                    <input class="form-control" type="file" id="pdfFile" name="pdf_file" accept="application/pdf"
+                           required>
+                </div>
+                <button type="submit" class="btn btn-warning">Upload</button>
+            </form>
+            <div id="fileError" class="text-danger mt-2"></div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- PDF File Upload Form for Existing Course Content -->
+    <div class="card">
+        <div class="card-header">
+            <h5><b>Upload PDF File for Generating Content for Existing Course.</b></h5>
+        </div>
+        <div class="card-body">
+            <form action="{% url 'extend_course' %}" method="post" enctype="multipart/form-data"
+                  onsubmit="return validateFileWithCourse()">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="existingCourse" class="form-label">Select Course:</label>
+                    <select class="form-control" id="existingCourse" name="course_id" required>
+                        <option value="">Select a course</option>
+                        {% for course in courses %}
+                        <option value="{{ course.id }}">{{ course.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="pdfFileExisting" class="form-label">Select PDF File:</label>
+                    <input class="form-control" type="file" id="pdfFileExisting" name="pdf_file"
+                           accept="application/pdf" required>
+                </div>
+                <button type="submit" class="btn btn-warning">Upload</button>
+            </form>
+            <div id="fileErrorExisting" class="text-danger mt-2"></div>
+        </div>
+    </div>
 
-    <script>
-        function validateFile() {
-            const pdfFile = document.getElementById('pdfFile');
-            const fileError = document.getElementById('fileError');
-            const submitButtons = document.querySelectorAll('button[type="submit"]');
+    <!-- Listings of Courses -->
+    <div class="card">
+        <div class="card-header">
+            Course Listings
+        </div>
+        <div class="card-body">
+            <h5>Courses</h5>
+            <ul class="list-group">
+                {% for course in courses %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>{{ course.title }}</strong>
+                        <button class="btn btn-link" data-bs-toggle="collapse" data-bs-target="#course-{{ course.id }}">
+                            View Details
+                        </button>
+                    </div>
 
-            if (pdfFile.files.length === 0) {
-                fileError.textContent = "Please select a file.";
-                return false;
-            }
+                    <div id="course-{{ course.id }}" class="collapse collapse-content">
+                        <p>{{course.description}}</p>
+                        <ul>
+                            {% for module in course.modules.all %}
+                            <li>
+                                <strong>Module:</strong> {{ module.title }}
+                                <p>{{module.description}}</p>
+                                <ul>
+                                    {% for lesson in module.lessons.all %}
+                                    <li>
+                                        <strong>Lesson:</strong> {{ lesson.title }}
+                                        <p>{{lesson.content}}</p>
+                                        <ul>
+                                            {% for quiz in lesson.quizzes.all %}
+                                            <li>
+                                                <strong>Quiz:</strong> {{ quiz.title }}
+                                                <ul>
+                                                    {% for question in quiz.questions.all %}
+                                                    <li>
+                                                        <strong>Question:</strong> {{ question.question_text }}<br>
+                                                        <strong>Answer:</strong> {{ question.correct_answer }}
+                                                        <ul>
+                                                            {% for option in question.options.all %}
+                                                            <li>
+                                                                <strong>Option:</strong> {{ option.option_text }}
+                                                                {% if option.is_correct %}
+                                                                <span class="badge bg-success">Correct</span>
+                                                                {% endif %}
+                                                            </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
 
-            const file = pdfFile.files[0];
-            const fileType = file.type;
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-            if (fileType !== 'application/pdf') {
-                fileError.textContent = "Please upload a valid PDF file.";
-                return false;
-            }
+<script>
+    function validateFile() {
+        const pdfFile = document.getElementById('pdfFile');
+        const fileError = document.getElementById('fileError');
+        const submitButtons = document.querySelectorAll('button[type="submit"]');
 
-            submitButton.disabled = true;
-            fileError.textContent = "";
-            return true;
+        if (pdfFile.files.length === 0) {
+            fileError.textContent = "Please select a file.";
+            return false;
         }
 
-        function validateFileWithCourse() {
-            const courseSelect = document.getElementById('existingCourse');
-            const pdfFile = document.getElementById('pdfFileExisting');
-            const fileError = document.getElementById('fileErrorExisting');
-            const submitButton = document.querySelector('button[type="submit"]');
+        const file = pdfFile.files[0];
+        const fileType = file.type;
 
-            if (courseSelect.value === "") {
-                fileError.textContent = "Please select a course.";
-                return false;
-            }
-
-            if (pdfFile.files.length === 0) {
-                fileError.textContent = "Please select a file.";
-                return false;
-            }
-
-            const file = pdfFile.files[0];
-            const fileType = file.type;
-
-            if (fileType !== 'application/pdf') {
-                fileError.textContent = "Please upload a valid PDF file.";
-                return false;
-            }
-
-            submitButtons.forEach(button => {
-                button.disabled = true;
-            });
-            fileError.textContent = "";
-            return true;
+        if (fileType !== 'application/pdf') {
+            fileError.textContent = "Please upload a valid PDF file.";
+            return false;
         }
-    </script>
+
+        submitButton.disabled = true;
+        fileError.textContent = "";
+        return true;
+    }
+
+    function validateFileWithCourse() {
+        const courseSelect = document.getElementById('existingCourse');
+        const pdfFile = document.getElementById('pdfFileExisting');
+        const fileError = document.getElementById('fileErrorExisting');
+        const submitButton = document.querySelector('button[type="submit"]');
+
+        if (courseSelect.value === "") {
+            fileError.textContent = "Please select a course.";
+            return false;
+        }
+
+        if (pdfFile.files.length === 0) {
+            fileError.textContent = "Please select a file.";
+            return false;
+        }
+
+        const file = pdfFile.files[0];
+        const fileType = file.type;
+
+        if (fileType !== 'application/pdf') {
+            fileError.textContent = "Please upload a valid PDF file.";
+            return false;
+        }
+
+        submitButtons.forEach(button => {
+            button.disabled = true;
+        });
+        fileError.textContent = "";
+        return true;
+    }
+</script>
 </body>
 
 </html>
