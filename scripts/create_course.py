@@ -3,10 +3,9 @@ from django.db import transaction
 from course.models import Course, Module, Lesson, Quiz, Question, Option
 
 
-def create_course(data):
+def create_course(data, course_name):
     try:
         with transaction.atomic():
-            course_name = data.get('course_name')
             course_description = data.get('course_description')
 
             course = Course.objects.create(
