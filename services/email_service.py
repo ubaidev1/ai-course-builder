@@ -9,16 +9,14 @@ class EmailServices:
     """
 
     @staticmethod
-    def send_email_to_client(user, email, invitation_link, template_name='invitation_email.html',
-                             subject="Course Invitation Link", ):
+    def send_email_to_client(email, redirect_url, template_name='invitation_email.html',
+                             subject="Course Invitation Link"):
 
         kwargs = {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'invitation_link': invitation_link
+            'redirect_url': redirect_url
         }
-        message = render_to_string(template_name, kwargs)
 
+        message = render_to_string(template_name, kwargs)
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [email]
 

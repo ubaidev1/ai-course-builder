@@ -2,7 +2,7 @@ from django.db import models
 
 from course.models.course import Course
 from users.models import BaseModel
-from users.models import User
+from users.models.user import User
 
 
 class CourseEnrollment(BaseModel):

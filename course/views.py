@@ -8,14 +8,10 @@ from .models import Course, Lesson, QuizScore, Quiz
 
 @login_required
 def home_view(request, course_id=None):
-    # Get the user's course progress (which includes both progress and obtained score)
     course_progress = get_course_progress(request.user)
-
     progress = None
     quiz_score = None
-
     if course_id:
-        # Fetch course-specific progress and quiz score from the course_progress data
         course_data = next((cp for cp in course_progress if cp['course'].id == course_id), None)
         if course_data:
             progress = course_data['progress']
@@ -43,12 +39,9 @@ def retake_quiz(request, course_id):
     # After resetting, take the user to the first lesson in the course
     course = get_object_or_404(Course, id=course_id)
     next_lesson = get_next_lesson(course, request.user)
-
-    # Redirect to the next lesson
     if next_lesson:
         return redirect('course_detail', course_id=course_id, lesson_id=next_lesson)
     else:
-        # Handle the case when there are no more lessons/quizzes left
         return redirect('home')
 
 

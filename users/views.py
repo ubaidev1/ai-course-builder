@@ -1,6 +1,7 @@
 import json
 import os
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -14,13 +15,12 @@ from course.models import Course, Question, QuizScore, CourseEnrollment
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
 from services import TokenService, EmailServices
-from users.models import User
+from users.models import User, UserInvitation
 
 
 def signup(request):
     if request.user.is_authenticated:
         return redirect('home')
-
     if request.method == 'POST':
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
@@ -32,12 +32,19 @@ def signup(request):
         elif User.objects.filter(email=email).exists():
             messages.error(request, 'An account with this email already exists.')
         else:
-            User.objects.create_user(
+            user = User.objects.create_user(
                 email=email,
                 password=password,
                 first_name=first_name,
-                last_name=last_name
-            )
+                last_name=last_name)
+            invitations = UserInvitation.objects.filter(email=email, status=UserInvitation.PENDING)
+            for invitation in invitations:
+                course = invitation.course
+                CourseEnrollment.objects.create(
+                    course=course,
+                    user=user)
+                invitation.status = UserInvitation.ACCEPTED
+                invitation.save()
             return redirect('login')
     return render(request, 'signup.html')
 
@@ -95,11 +102,13 @@ def dashboard(request):
     try:
         if request.method == 'POST' and request.FILES.get('pdf_file'):
             pdf_file = request.FILES['pdf_file']
-            fs = FileSystemStorage(location='/tmp')
+            fs = FileSystemStorage(location=settings.MEDIA_ROOT)
             filename = fs.save(pdf_file.name, pdf_file)
             pdf_file_path = fs.path(filename)
-
-            json_data = get_ai_course_details('config.json', pdf_file_path)
+            try:
+                json_data = get_ai_course_details('config.json', pdf_file_path)
+            except Exception as e:
+                print(e, 'ERROR')
             data = json.loads(json_data)
             create_course(data)
             os.remove(pdf_file_path)
@@ -185,6 +194,26 @@ def result_view(request):
 
 
 @login_required
+def send_invite(request, course_id):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        email = data.get('email')
+        course = get_object_or_404(Course, id=course_id)
+        print(course)
+        if email:
+            try:
+                redirect_url = request.META.get('HTTP_ORIGIN')
+                EmailServices.send_email_to_client(email, redirect_url)
+            except Exception as e:
+                print(e)
+            invitation = UserInvitation.objects.create(email=email, course=course)
+            invitation.save()
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid email.'})
+
+
+@login_required
 def invite_user(request):
     courses = Course.objects.all()
     users = User.objects.all()
@@ -192,7 +221,6 @@ def invite_user(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         course_id = request.POST.get('course_id')
-
         user = get_object_or_404(User, email=email)
         course = get_object_or_404(Course, id=course_id)
         invitation_link = TokenService.get_invitation_link(request.META.get('HTTP_ORIGIN'), course.id, user.id)
@@ -227,7 +255,7 @@ def extend_course(request):
             messages.error(request, "Please select a course and upload a PDF file.")
             return redirect('dashboard')
         course = get_object_or_404(Course, id=course_id)
-        fs = FileSystemStorage(location='/tmp')
+        fs = FileSystemStorage(location=settings.MEDIA_ROOT)
         filename = fs.save(pdf_file.name, pdf_file)
         pdf_file_path = fs.path(filename)
         json_data = get_ai_course_details('config.json', pdf_file_path)

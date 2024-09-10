@@ -267,6 +267,7 @@
         transform: scale(1.05);
     }
 
+
     @media (max-width: 768px) {
         .score {
             top: -75px !important;
@@ -285,9 +286,9 @@
 
 
         .nav-item .nav-link:hover {
-    color: white !important; /* Change text color to white */
-    background-color: #4F46E5 !important; /* Change background color to blue */
-}
+        color: white !important;
+        background-color: #4F46E5 !important;
+        }
 
         .options button {
             width: 90%;
@@ -317,50 +318,44 @@
 </style>
 
 
-
 <script>
     const quizData = {{ quiz_data|safe }};
     let currentQuestionIndex = 0;
     let score = 0;
-    let answeredIncorrectly = false; // Flag to track if the question was answered incorrectly
+    let answeredIncorrectly = false;
 
     function loadQuestion() {
         const questionData = quizData.quiz[currentQuestionIndex];
         document.getElementById('question').innerText = questionData.question;
 
         const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = ''; // Clear previous options
+        optionsContainer.innerHTML = '';
         questionData.options.forEach((option, index) => {
             const button = document.createElement('button');
             button.innerText = option;
             button.onclick = () => selectOption(index);
-            button.dataset.correct = option === questionData.correct_answer; // Add data attribute for correct answer
+            button.dataset.correct = option === questionData.correct_answer;
             optionsContainer.appendChild(button);
         });
 
         document.getElementById('result').innerText = '';
-        answeredIncorrectly = false; // Reset the flag for the new question
+        answeredIncorrectly = false;
     }
 
     function selectOption(optionIndex) {
         const questionData = quizData.quiz[currentQuestionIndex];
         const selectedButton = document.querySelector(`#options-container button:nth-child(${optionIndex + 1})`);
         const isCorrect = selectedButton.dataset.correct === 'true';
-
-        // Disable only the selected option button
         selectedButton.disabled = true;
 
         if (isCorrect) {
             selectedButton.classList.add('correct');
-            // Add points based on whether the user answered incorrectly first
             if (answeredIncorrectly) {
                 score += 5;
             } else {
                 score += 10;
             }
             document.getElementById('result').innerText = `Correct! Score: ${score}`;
-
-            // Move to the next question after a short delay
             setTimeout(() => {
                 currentQuestionIndex++;
                 if (currentQuestionIndex < quizData.quiz.length) {
@@ -376,9 +371,9 @@
             }, 1000);
         } else {
             selectedButton.classList.add('incorrect');
-            score -= 10; // Deduct points for incorrect answer
+            score -= 10;
             document.getElementById('result').innerText = `Incorrect! Score: ${score}`;
-            answeredIncorrectly = true; // Set the flag to true if answered incorrectly
+            answeredIncorrectly = true;
         }
         document.getElementById('score').innerText = score;
     }

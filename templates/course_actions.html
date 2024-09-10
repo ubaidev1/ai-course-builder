@@ -16,14 +16,24 @@ Admin - Course Actions
         {% if courses %}
         {% for course in courses %}
         <div class="list-group-item d-flex justify-content-between align-items-center">
-                {{ course.title }}
-            <div class="form-check form-switch">
-                <input class="form-check-input toggle-publish" type="checkbox" data-course-id="{{ course.id }}"
-                       {% if course.is_published %}checked{% endif %}>
-                <label class="form-check-label">
-                    Publish
-                </label>
+            {{ course.title }}
+            <div class="d-flex align-items-center">
+                <!-- Toggle publish switch -->
+                <div class="form-check form-switch me-3">
+                    <input class="form-check-input toggle-publish" type="checkbox" data-course-id="{{ course.id }}"
+                           {% if course.is_published %}checked{% endif %}>
+                    <label class="form-check-label">Publish</label>
+                </div>
+
+                <!-- Invite button -->
+                <button class="btn btn-outline-primary invite-button" data-course-id="{{ course.id }}">Invite</button>
             </div>
+        </div>
+
+        <!-- Hidden email input form for invite -->
+        <div class="list-group-item invite-form" id="invite-form-{{ course.id }}" style="display: none;">
+            <input type="email" id="email-{{ course.id }}" class="form-control" placeholder="Enter email to invite">
+            <button class="btn btn-primary mt-2 send-invite-button" data-course-id="{{ course.id }}">Send Invite</button>
         </div>
         {% endfor %}
         {% else %}
@@ -33,27 +43,63 @@ Admin - Course Actions
 </div>
 
 <script>
-    // Handle toggling of the publish status
-    document.querySelectorAll('.toggle-publish').forEach(function(switchElement) {
-        switchElement.addEventListener('change', function() {
-            const courseId = this.dataset.courseId;
-            const isChecked = this.checked;
-            fetch(`/toggle-course-publish/${courseId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Content-Type': 'application/json'
-                }
-            }).then(response => response.json())
-              .then(data => {
-                  if (data.status !== 'success') {
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.toggle-publish').forEach(function(switchElement) {
+            switchElement.addEventListener('change', function() {
+                const courseId = this.dataset.courseId;
+                const isChecked = this.checked;
+                fetch(`/toggle-course-publish/${courseId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.status !== 'success') {
+                          alert('Failed to update the course publish status.');
+                          this.checked = !isChecked;
+                      }
+                  }).catch(() => {
                       alert('Failed to update the course publish status.');
                       this.checked = !isChecked;
-                  }
-              }).catch(() => {
-                  alert('Failed to update the course publish status.');
-                  this.checked = !isChecked;
-              });
+                  });
+            });
+        });
+        document.querySelectorAll('.invite-button').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const courseId = this.dataset.courseId;
+                const inviteForm = document.getElementById('invite-form-' + courseId);
+                inviteForm.style.display = (inviteForm.style.display === 'none' || inviteForm.style.display === '') ? 'block' : 'none';
+            });
+        });
+        document.querySelectorAll('.send-invite-button').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const courseId = this.dataset.courseId;
+                const email = document.getElementById('email-' + courseId).value.trim();
+                if (email) {
+                    fetch(`/send-invite/${courseId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email: email })
+                    }).then(response => response.json())
+                      .then(data => {
+                          if (data.status === 'success') {
+                              alert('Invite sent successfully!');
+                              document.getElementById('invite-form-' + courseId).style.display = 'none';
+                          } else {
+                              alert('Error: ' + data.message);
+                          }
+                      }).catch(() => {
+                          alert('Failed to send invite.');
+                      });
+                } else {
+                    alert('Please enter a valid email.');
+                }
+            });
         });
     });
 </script>

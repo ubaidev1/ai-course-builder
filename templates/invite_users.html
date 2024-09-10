@@ -36,7 +36,7 @@
                         <td>{{ user.email }}</td>
                         <td>
                             <!-- Invite button for each user -->
-                            <form action="{% url 'invite_user' %}" method="POST">
+                            <form action="{% signup %}" method="POST">
                                 {% csrf_token %}
                                 <input type="hidden" name="email" value="{{ user.email }}">
                                 <input type="hidden" id="selected-course" name="course_id" value="">
