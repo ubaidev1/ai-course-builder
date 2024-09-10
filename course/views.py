@@ -109,6 +109,8 @@ def get_next_lesson(course, user):
 
 def get_course_progress(user):
     courses = Course.objects.filter(is_published=True, enrollment__user=user)
+    if user.is_admin:
+        courses = Course.objects.filter(is_published=True)
     course_progress = []
     for course in courses:
         total_quizzes = Quiz.objects.filter(lesson__module__course=course).count()
