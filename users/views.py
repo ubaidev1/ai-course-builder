@@ -184,6 +184,29 @@ def result_view(request):
 
 
 @login_required
+def invite_user(request):
+    courses = Course.objects.all()
+    users = User.objects.all()
+
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        course_id = request.POST.get('course_id')
+
+        selected_user = get_object_or_404(User, email=email)
+        selected_course = get_object_or_404(Course, id=course_id)
+
+    return render(request, 'invite_users.html', {
+        'courses': courses,
+        'users': users
+    })
+
+
+@login_required
+def send_invite(request):
+    pass
+
+
+@login_required
 def extend_course(request):
     if request.method == 'POST':
         course_id = request.POST.get('course_id')

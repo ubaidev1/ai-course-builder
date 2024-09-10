@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Invite Users to Course</h2>
+
+    <div class="row">
+        <!-- Left Side: Courses List -->
+        <div class="col-md-4">
+            <h4>Select a course</h4>
+            <ul class="list-group" id="course-list">
+                {% for course in courses %}
+                <li class="list-group-item course-item" data-course-id="{{ course.id }}">
+                    <a href="#" class="course-link" data-course-id="{{ course.id }}">{{ course.title }}</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No courses available</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Right Side: Users List -->
+        <div class="col-md-8">
+            <h4></h4>
+            <div id="user-section" style="display: none;">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-list">
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <!-- Invite button for each user -->
+                                <form action="" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="email" value="{{ user.email }}">
+                                    <input type="hidden" id="selected-course" name="course_id" value="">
+                                    <button type="submit" class="btn btn-primary invite-button" disabled>Invite</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="text-center">No users available</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.course-link').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const courseId = this.getAttribute('data-course-id');
+
+            // Remove 'active' class from all courses and add to the selected course
+            document.querySelectorAll('.course-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            this.closest('.course-item').classList.add('active');
+
+            // Display the user section and enable invite buttons
+            document.getElementById('user-section').style.display = 'block';
+            document.querySelectorAll('.invite-button').forEach(button => {
+                button.disabled = false;
+            });
+
+            // Set the selected course ID for all forms
+            document.querySelectorAll('#selected-course').forEach(input => {
+                input.value = courseId;
+            });
+        });
+    });
+</script>
+
+<style>
+    .course-item.active {
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+    }
+
+    .course-item.active a {
+        color: white;
+        text-decoration: none;
+    }
+
+    .course-item a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+    .course-item a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+{% endblock %}
