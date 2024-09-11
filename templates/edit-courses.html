@@ -207,19 +207,25 @@
 
     // Fetch all modules
     const modules = Array.from(document.querySelectorAll(`#course-${courseId} [id^=edit-module-title-]`)).map(moduleTitleEl => {
-        const moduleId = moduleTitleEl.id.split('-').pop();  // Extract module ID
+        const moduleId = moduleTitleEl.id;  // Extract module ID
 
         // Fetch all lessons for the current module
-        const lessons = Array.from(document.querySelectorAll(`#module-edit-${moduleId} [id^=edit-lesson-title-]`)).map(lessonTitleEl => {
-            const lessonId = lessonTitleEl.id.split('-').pop();  // Extract lesson ID
+        const lessons = Array.from(document.querySelectorAll(`#course-form-${courseId} [id^=lesson-title-]`)).map(lessonTitleEl => {
+                const lessonId = lessonTitleEl.id;
+
+            console.log("Fetching lesson data for Lesson ID:", lessonId); // Debugging: Log lesson IDs
 
             // Fetch all quizzes for the current lesson
-            const quizzes = Array.from(document.querySelectorAll(`#lesson-edit-${lessonId} [id^=edit-quiz-title-]`)).map(quizTitleEl => {
-                const quizId = quizTitleEl.id.split('-').pop();  // Extract quiz ID
+            const quizzes = Array.from(document.querySelectorAll(`#course-form-${courseId} [id^=edit-quiz-title-]`)).map(quizTitleEl => {
+                const quizId = quizTitleEl.id;  // Extract quiz ID
+
+                console.log("Fetching quiz data for Quiz ID:", quizId); // Debugging: Log quiz IDs
 
                 // Fetch all questions for the current quiz
                 const questions = Array.from(document.querySelectorAll(`#quiz-edit-${quizId} [id^=edit-question-]`)).map(questionEl => {
-                    const questionId = questionEl.id.split('-').pop();  // Extract question ID
+                    const questionId = questionEl.id;  // Extract question ID
+
+                    console.log("Fetching question data for Question ID:", questionId); // Debugging: Log question IDs
 
                     // Fetch all options for the current question
                     const options = Array.from(document.querySelectorAll(`#edit-question-${questionId} ~ ul [id^=edit-option-]`)).map(optionEl => optionEl.value);
@@ -242,13 +248,20 @@
                 };
             });
 
+            // Log lessons being captured
+            console.log("Captured Lesson Title:", lessonTitleEl.textContent.trim());
+            console.log("Captured Lesson Content:", document.getElementById(`edit-lesson-content-${lessonId}`).value);
+            console.log("Captured Quizzes:", quizzes);
+
             // Return lesson object
             return {
-                lesson_title: lessonTitleEl.value,
+                lesson_title: lessonTitleEl.textContent.trim(),
                 lesson_content: document.getElementById(`edit-lesson-content-${lessonId}`).value,
                 quiz: quizzes
             };
         });
+
+        console.log("Captured Lessons:", lessons); // Debugging: Log lessons
 
         // Return module object
         return {
@@ -264,9 +277,11 @@
         modules: modules
     };
 
+    console.log("Final Payload:", courseData); // Debugging: Log final payload
+
     // Send the data via API
-    fetch(`/api/courses/${courseId}/`, {
-        method: 'PATCH',
+    fetch(`/update-course/${courseId}/`, {
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken') // Adjust for CSRF token handling
