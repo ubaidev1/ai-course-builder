@@ -13,7 +13,6 @@ from antropic_api.anthropic_response import get_ai_course_details
 from course.models import Course, Question, QuizScore
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
-from scripts.update_course import update_course
 from users.models import User
 
 
@@ -120,12 +119,8 @@ def edit_courses(request):
         messages.error(request, 'You do not have permission to access this page.')
         return redirect('home')
 
-    if request.method == 'POST':
-        course_id = request.POST.get('course_id')
-        update_course(request, course_id)
     courses = Course.objects.all()
     return render(request, 'edit-courses.html', {'courses': courses})
-
 
 
 @login_required
