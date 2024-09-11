@@ -120,8 +120,8 @@
                                         <ul>
                                             {% for lesson in module.lessons.all %}
                                             <li>
-                                                <strong id="lesson-title-{{ lesson.id }}">Lesson: {{
-                                                    lesson.title}}</strong>
+                                                <strong id="lesson-title-{{ lesson.id }}">Lesson:
+                                                    {{lesson.title}}</strong>
                                                 <button class="btn btn-link"
                                                         onclick="toggleEditLesson('{{ lesson.id }}')">
                                                     Edit
@@ -211,6 +211,7 @@
     </div>
 </div>
 <script>
+    // Toggle between Edit and Save for any field (course/module/lesson/quiz)
     function toggleSaveBtn(...fieldIds) {
         const saveBtn = event.target;
         if (saveBtn.innerHTML === 'Edit') {
@@ -223,24 +224,31 @@
             fieldIds.forEach(fieldId => {
                 document.getElementById(fieldId).disabled = true;
             });
-            saveCourse();  // Assuming saveCourse is invoked to send updated data
+            // Save the course after fields are disabled (optional)
+            const courseId = saveBtn.dataset.courseId;
+            if (courseId) {
+                saveCourse(courseId);  // Pass the course ID to save course data
+            }
         }
     }
 
+    // Toggle visibility of module editing form
     function toggleEditModule(moduleId) {
         document.getElementById(`module-edit-${moduleId}`).classList.toggle('collapse');
     }
 
+    // Toggle visibility of lesson editing form
     function toggleEditLesson(lessonId) {
         document.getElementById(`lesson-edit-${lessonId}`).classList.toggle('collapse');
     }
 
+    // Save the course data to the backend
     function saveCourse(courseId) {
         const courseTitle = document.getElementById(`edit-course-title-${courseId}`).value;
         const courseDescription = document.getElementById(`edit-course-description-${courseId}`).value;
 
         const modules = [];
-        document.querySelectorAll('[id^=module-edit-]').forEach((module) => {
+        document.querySelectorAll(`[id^=module-edit-]`).forEach((module) => {
             const moduleId = module.id.split('-')[2];
             const moduleTitle = document.getElementById(`edit-module-title-${moduleId}`).value;
 
@@ -251,20 +259,31 @@
                 const lessonContent = document.getElementById(`edit-lesson-content-${lessonId}`).value;
 
                 const quizzes = [];
-                document.querySelectorAll(`#lesson-edit-${lessonId} [id^=edit-question-]`).forEach((question) => {
-                    const questionId = question.id.split('-')[2];
-                    const questionText = document.getElementById(`edit-question-${questionId}`).value;
-                    const correctAnswer = document.getElementById(`edit-answer-${questionId}`).value;
+                document.querySelectorAll(`#lesson-edit-${lessonId} [id^=quiz-edit-]`).forEach((quiz) => {
+                    const quizId = quiz.id.split('-')[2];
+                    const quizTitle = document.getElementById(`edit-quiz-title-${quizId}`).value;
 
-                    const options = [];
-                    document.querySelectorAll(`#edit-answer-${questionId} ~ ul [id^=edit-option-]`).forEach((option) => {
-                        options.push(option.value);
+                    const questions = [];
+                    document.querySelectorAll(`#quiz-edit-${quizId} [id^=edit-question-]`).forEach((question) => {
+                        const questionId = question.id.split('-')[2];
+                        const questionText = document.getElementById(`edit-question-${questionId}`).value;
+                        const correctAnswer = document.getElementById(`edit-answer-${questionId}`).value;
+
+                        const options = [];
+                        document.querySelectorAll(`#edit-question-${questionId} ~ ul [id^=edit-option-]`).forEach((option) => {
+                            options.push(option.value);
+                        });
+
+                        questions.push({
+                            question: questionText,
+                            options: options,
+                            correct_answer: correctAnswer
+                        });
                     });
 
                     quizzes.push({
-                        question: questionText,
-                        options: options,
-                        correct_answer: correctAnswer
+                        quiz_title: quizTitle,
+                        questions: questions
                     });
                 });
 
@@ -287,11 +306,12 @@
             modules: modules
         };
 
+        // Send data to the backend via POST request
         fetch(`/update-course/${courseId}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': '{{ csrf_token }}'  // Assuming you are using Django CSRF protection
             },
             body: JSON.stringify(data)
         })
@@ -305,7 +325,18 @@
             }
         });
     }
+
+    // Toggle visibility of quiz editing form
+    function toggleEditQuiz(quizId) {
+        document.getElementById(`quiz-edit-${quizId}`).classList.toggle('collapse');
+    }
+
+    // Toggle visibility of question and its options editing form
+    function toggleEditQuestion(questionId) {
+        document.getElementById(`question-edit-${questionId}`).classList.toggle('collapse');
+    }
 </script>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
