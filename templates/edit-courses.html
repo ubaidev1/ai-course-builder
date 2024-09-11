@@ -201,7 +201,8 @@
     }
 
     // Save the course data to the backend
-    function saveCourse(courseId) {
+  // Save the course data to the backend
+function saveCourse(courseId) {
     const courseTitle = document.getElementById(`edit-course-title-${courseId}`).value;
     const courseDescription = document.getElementById(`edit-course-description-${courseId}`).value;
 
@@ -210,8 +211,8 @@
         const moduleId = moduleTitleEl.id;  // Extract module ID
 
         // Fetch all lessons for the current module
-        const lessons = Array.from(document.querySelectorAll(`#course-form-${courseId} [id^=lesson-title-]`)).map(lessonTitleEl => {
-                const lessonId = lessonTitleEl.id;
+        const lessons = Array.from(document.querySelectorAll(`#course-${courseId} [id^=edit-lesson-title-]`)).map(lessonTitleEl => {
+            const lessonId = lessonTitleEl.id.replace('edit-lesson-title-', '');  // Extract lesson ID
 
             console.log("Fetching lesson data for Lesson ID:", lessonId); // Debugging: Log lesson IDs
 
@@ -249,13 +250,13 @@
             });
 
             // Log lessons being captured
-            console.log("Captured Lesson Title:", lessonTitleEl.textContent.trim());
+            console.log("Captured Lesson Title:", lessonTitleEl.value);
             console.log("Captured Lesson Content:", document.getElementById(`edit-lesson-content-${lessonId}`).value);
             console.log("Captured Quizzes:", quizzes);
 
             // Return lesson object
             return {
-                lesson_title: lessonTitleEl.textContent.trim(),
+                lesson_title: lessonTitleEl.value,
                 lesson_content: document.getElementById(`edit-lesson-content-${lessonId}`).value,
                 quiz: quizzes
             };
@@ -295,6 +296,7 @@
           console.error('Error updating course:', error);
       });
 }
+
 
 
     // Utility function to get the CSRF token from cookies
