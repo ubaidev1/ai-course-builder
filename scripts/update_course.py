@@ -97,5 +97,3 @@ def update_course(request, course_id):
             return JsonResponse({'error': 'Invalid JSON data'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
