@@ -103,6 +103,7 @@ def dashboard(request):
         return redirect('home')
     try:
         if request.method == 'POST' and request.FILES.get('pdf_file'):
+            course_name = request.POST.get('course_name')
             pdf_file = request.FILES['pdf_file']
             fs = FileSystemStorage(location=settings.MEDIA_ROOT)
             filename = fs.save(pdf_file.name, pdf_file)
@@ -112,7 +113,7 @@ def dashboard(request):
             except Exception as e:
                 print('error', e, 'ERROR')
             data = json.loads(json_data)
-            create_course(data)
+            create_course(data, course_name)
             os.remove(pdf_file_path)
         courses = Course.objects.all()
         return render(request, 'dashboard.html', {'courses': courses})
@@ -121,6 +122,16 @@ def dashboard(request):
             'courses': Course.objects.all(),
             'error_message': f"An unexpected error occurred: {str(e)}"
         })
+
+
+@login_required
+def edit_courses(request):
+    if not request.user.is_admin:
+        messages.error(request, 'You do not have permission to access this page.')
+        return redirect('home')
+
+    courses = Course.objects.all()
+    return render(request, 'edit-courses.html', {'courses': courses})
 
 
 @login_required
