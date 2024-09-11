@@ -11,6 +11,11 @@
             background-color: #f8f9fa;
         }
 
+        .btn-success mt-2{
+            background-color: #007bff;;
+
+        }
+
         .container {
             margin-top: 50px;
         }
@@ -173,8 +178,7 @@
                                 {% endfor %}
                             </ul>
                         </form>
-                        <button type="button" class="btn btn-success mt-2" onclick="saveCourse('{{ course.id }}')">Save
-                            the course
+                        <button type="button"  style="background-color: #007bff" class="btn btn-success mt-2" onclick="saveCourse('{{ course.id }}')">Save
                         </button>
                     </div>
                 </li>
@@ -312,7 +316,6 @@ function getCookie(name) {
 }
 
 </script>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
