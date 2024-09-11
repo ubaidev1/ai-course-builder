@@ -3,4 +3,5 @@
 *.xml
 /.idea
 __pycache__
-.idea
+.idea/
+*.iml
