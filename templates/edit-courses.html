@@ -201,6 +201,7 @@
     }
 
     // Save the course data to the backend
+// Save the course data to the backend
 function saveCourse(courseId) {
     const courseTitle = document.getElementById(`edit-course-title-${courseId}`).value;
     const courseDescription = document.getElementById(`edit-course-description-${courseId}`).value;
@@ -222,43 +223,54 @@ function saveCourse(courseId) {
                     const questionId = questionEl.id.replace('edit-question-', '');  // Extract question ID
 
                     // Fetch all options for the current question
-                    const options = Array.from(document.querySelectorAll(`#edit-question-${questionId} ~ ul [id^=edit-option-]`)).map(optionEl => optionEl.value);
+                    const options = Array.from(document.querySelectorAll(`#edit-question-${questionId} ~ ul [id^=edit-option-]`)).map(optionEl => {
+                        const optionId = optionEl.id.replace('edit-option-', '');  // Extract option ID
+                        return {
+                            option_id: optionId,
+                            option_text: optionEl.value
+                        };
+                    });
 
                     // Fetch the correct answer for the current question
                     const correctAnswer = document.getElementById(`edit-answer-${questionId}`).value;
 
-                    // Return question object
+                    // Return question object with ID and options
                     return {
-                        question: questionEl.value,
+                        question_id: questionId,
+                        question_text: questionEl.value,
                         options: options,
                         correct_answer: correctAnswer
                     };
                 });
 
-                // Return quiz object
+                // Return quiz object with ID and questions
                 return {
-                    title: quizTitleEl.value,
+                    quiz_id: quizId,
+                    quiz_title: quizTitleEl.value,
                     questions: questions
                 };
             });
 
-            // Return lesson object
+            // Return lesson object with ID and quizzes
             return {
+                lesson_id: lessonId,
                 lesson_title: lessonTitleEl.value,
                 lesson_content: document.getElementById(`edit-lesson-content-${lessonId}`).value,
                 quizzes: quizzes
             };
         });
 
-        // Return module object
+        // Return module object with ID and lessons
         return {
+            module_id: moduleId,
             module_title: moduleTitleEl.value,
             module_lessons: lessons
         };
     });
 
-    // Create the final course object
+    // Create the final course object with ID, title, description, and modules
     const courseData = {
+        course_id: courseId,
         course_name: courseTitle,
         course_description: courseDescription,
         modules: modules
@@ -283,25 +295,22 @@ function saveCourse(courseId) {
       });
 }
 
-
-
-
-
-    // Utility function to get the CSRF token from cookies
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
+// Utility function to get the CSRF token from cookies
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
             }
         }
-        return cookieValue;
     }
+    return cookieValue;
+}
+
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
