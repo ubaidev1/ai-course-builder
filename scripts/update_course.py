@@ -13,58 +13,89 @@ def update_course(request, course_id):
             data = json.loads(request.body)
             course_data = data
 
-            # Get the course by ID
-            course = Course.objects.get(id=course_id)
-            course.title = course_data['course_name']
-            course.description = course_data['course_description']
-            course.save()
+            # Retrieve the course by course_id
+            try:
+                course = Course.objects.get(id=course_id)
+                course.title = course_data['course_name']
+                course.description = course_data['course_description']
+                course.save()  # Save course changes if any
+            except Course.DoesNotExist:
+                return JsonResponse({'error': 'Course not found'}, status=404)
 
-            # Update modules
-            for module_data in course_data['modules']:
-                module_title = module_data['module_title']
-                module, created = Module.objects.get_or_create(course=course, title=module_title)
+            # Process modules
+            for module_data in course_data.get('modules', []):
+                try:
+                    module = Module.objects.get(id=module_data['module_id'], course=course)
+                    module.title = module_data['module_title']
+                    module.save()
+                except Module.DoesNotExist:
+                    module = Module.objects.create(
+                        id=module_data['module_id'],
+                        course=course,
+                        title=module_data['module_title']
+                    )
 
-                # Update module details
-                module.title = module_data['module_title']
-                module.description = module_data['module_description']
-                module.save()
+                # Process lessons
+                for lesson_data in module_data.get('module_lessons', []):
+                    try:
+                        lesson = Lesson.objects.get(id=lesson_data['lesson_id'], module=module)
+                        lesson.title = lesson_data['lesson_title']
+                        lesson.content = lesson_data['lesson_content']
+                        lesson.save()
+                    except Lesson.DoesNotExist:
+                        lesson = Lesson.objects.create(
+                            id=lesson_data['lesson_id'],
+                            module=module,
+                            title=lesson_data['lesson_title'],
+                            content=lesson_data['lesson_content']
+                        )
 
-                # Update lessons
-                for lesson_data in module_data['module_lessons']:
-                    lesson_title = lesson_data['lesson_title']
-                    lesson, created = Lesson.objects.get_or_create(module=module, title=lesson_title)
+                    # Process quizzes
+                    for quiz_data in lesson_data.get('quizzes', []):
+                        try:
+                            quiz = Quiz.objects.get(id=quiz_data['quiz_id'], lesson=lesson)
+                            quiz.title = quiz_data['quiz_title']
+                            quiz.save()
+                        except Quiz.DoesNotExist:
+                            quiz = Quiz.objects.create(
+                                id=quiz_data['quiz_id'],
+                                lesson=lesson,
+                                title=quiz_data['quiz_title']
+                            )
 
-                    # Update lesson details
-                    lesson.title = lesson_data['lesson_title']
-                    lesson.content = lesson_data['lesson_content']
-                    lesson.save()
+                        # Process questions
+                        for question_data in quiz_data.get('questions', []):
+                            try:
+                                question = Question.objects.get(id=question_data['question_id'], quiz=quiz)
+                                question.question_text = question_data['question_text']
+                                question.correct_answer = question_data['correct_answer']
+                                question.save()
+                            except Question.DoesNotExist:
+                                question = Question.objects.create(
+                                    id=question_data['question_id'],
+                                    quiz=quiz,
+                                    question_text=question_data['question_text'],
+                                    correct_answer=question_data['correct_answer']
+                                )
 
-                    # Update quizzes
-                    for quiz_data in lesson_data['quiz']:
-                        quiz_title = quiz_data['title']
-                        quiz, created = Quiz.objects.get_or_create(lesson=lesson, title=quiz_title)
+                            # Process options
+                            for option_data in question_data.get('options', []):
+                                try:
+                                    option = Option.objects.get(id=option_data['option_id'], question=question)
+                                    option.option_text = option_data['option_text']
+                                    option.save()
+                                except Option.DoesNotExist:
+                                    Option.objects.create(
+                                        id=option_data['option_id'],
+                                        question=question,
+                                        option_text=option_data['option_text']
+                                    )
 
-                        # Update quiz details
-                        quiz.title = quiz_data['title']
-                        quiz.save()
+            return JsonResponse({'message': 'Course updated successfully'}, status=200)
 
-                        # Update questions
-                        for question_data in quiz_data['questions']:
-                            question_text = question_data['question']
-                            question, created = Question.objects.get_or_create(quiz=quiz, question_text=question_text)
-
-                            # Update question details
-                            question.question_text = question_data['question']
-                            question.correct_answer = question_data['correct_answer']
-                            question.save()
-
-                            # Update options
-                            for option_text in question_data['options']:
-                                option, created = Option.objects.get_or_create(question=question,
-                                                                               option_text=option_text)
-                                option.option_text = option_text
-                                option.save()
-
-            return JsonResponse({'status': 'success'}, status=200)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=500)
+
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
