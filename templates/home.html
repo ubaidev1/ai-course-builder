@@ -211,7 +211,6 @@
             event.preventDefault();
             const courseId = retakeQuizButton.getAttribute('data-course-id');
             if (!courseId) {
-                console.error('Course ID is missing');
                 return;
             }
             removeCourseFromLocalStorage(courseId);
