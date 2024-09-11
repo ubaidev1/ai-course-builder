@@ -15,7 +15,6 @@ def home_view(request, course_id=None):
         course_data = next((cp for cp in course_progress if cp['course'].id == course_id), None)
         if course_data:
             progress = course_data['progress']
-            quiz_score = course_data['obtained_score']
 
     return render(request, 'home.html', {
         'course_progress': course_progress,
@@ -35,6 +34,7 @@ def next_lesson_view(request, course_id):
 def retake_quiz(request, course_id):
     # Delete the user's existing quiz scores for the given course
     QuizScore.objects.filter(user=request.user, quiz__lesson__module__course_id=course_id).delete()
+
 
     # After resetting, take the user to the first lesson in the course
     course = get_object_or_404(Course, id=course_id)
@@ -108,9 +108,9 @@ def get_next_lesson(course, user):
 
 
 def get_course_progress(user):
-    courses = Course.objects.filter(is_published=True, enrollment__user=user)
-    if user.is_admin:
-        courses = Course.objects.filter(is_published=True)
+    # courses = Course.objects.filter(is_published=True, enrollment__user=user)
+    # if user.is_admin:
+    courses = Course.objects.filter(is_published=True)
     course_progress = []
     for course in courses:
         total_quizzes = Quiz.objects.filter(lesson__module__course=course).count()
@@ -124,15 +124,9 @@ def get_course_progress(user):
             progress_percentage = (completed_quizzes / total_quizzes) * 100
         else:
             progress_percentage = 0
-
-        # Calculate user's total quiz score for the course
-        user_quiz_scores = QuizScore.objects.filter(user=user, quiz__lesson__module__course=course)
-        obtained_score = sum([quiz_score.score for quiz_score in user_quiz_scores])
-
         # Append the course data with progress and obtained score
         course_progress.append({
             'course': course,
             'progress': progress_percentage,
-            'obtained_score': obtained_score,  # add obtained score to the context
         })
     return course_progress

@@ -110,7 +110,7 @@ def dashboard(request):
             try:
                 json_data = get_ai_course_details('config.json', pdf_file_path)
             except Exception as e:
-                print(e, 'ERROR')
+                print('error', e, 'ERROR')
             data = json.loads(json_data)
             create_course(data)
             os.remove(pdf_file_path)
@@ -179,9 +179,10 @@ def result_view(request):
             total_questions = Question.objects.filter(quiz__in=quizzes).count()
             total_score = total_questions * 10  # Each question is worth 10 marks
             # Calculate the obtained score
-            user_quiz_scores = QuizScore.objects.filter(user=user, quiz__lesson__module__course=course)
-            for quiz_score in user_quiz_scores:
-                obtained_score += quiz_score.score
+            latest_quiz_score = QuizScore.objects.filter(user=user, quiz__lesson__module__course=course) \
+                .order_by('-created_at').first()  # Assuming there's a 'created_at' or timestamp field
+            if latest_quiz_score:
+                obtained_score = latest_quiz_score.score
             percentage = (obtained_score / total_score) * 100 if total_score > 0 else 0
             results.append({
                 'course': course.title,
