@@ -201,32 +201,25 @@
     }
 
     // Save the course data to the backend
-  // Save the course data to the backend
 function saveCourse(courseId) {
     const courseTitle = document.getElementById(`edit-course-title-${courseId}`).value;
     const courseDescription = document.getElementById(`edit-course-description-${courseId}`).value;
 
-    // Fetch all modules
+    // Fetch all modules scoped to the current course
     const modules = Array.from(document.querySelectorAll(`#course-${courseId} [id^=edit-module-title-]`)).map(moduleTitleEl => {
-        const moduleId = moduleTitleEl.id;  // Extract module ID
+        const moduleId = moduleTitleEl.id.replace('edit-module-title-', '');  // Extract module ID
 
-        // Fetch all lessons for the current module
-        const lessons = Array.from(document.querySelectorAll(`#course-${courseId} [id^=edit-lesson-title-]`)).map(lessonTitleEl => {
+        // Fetch all lessons scoped to the current module
+        const lessons = Array.from(document.querySelectorAll(`#module-edit-${moduleId} [id^=edit-lesson-title-]`)).map(lessonTitleEl => {
             const lessonId = lessonTitleEl.id.replace('edit-lesson-title-', '');  // Extract lesson ID
 
-            console.log("Fetching lesson data for Lesson ID:", lessonId); // Debugging: Log lesson IDs
+            // Fetch all quizzes scoped to the current lesson
+            const quizzes = Array.from(document.querySelectorAll(`#lesson-edit-${lessonId} [id^=edit-quiz-title-]`)).map(quizTitleEl => {
+                const quizId = quizTitleEl.id.replace('edit-quiz-title-', '');  // Extract quiz ID
 
-            // Fetch all quizzes for the current lesson
-            const quizzes = Array.from(document.querySelectorAll(`#course-form-${courseId} [id^=edit-quiz-title-]`)).map(quizTitleEl => {
-                const quizId = quizTitleEl.id;  // Extract quiz ID
-
-                console.log("Fetching quiz data for Quiz ID:", quizId); // Debugging: Log quiz IDs
-
-                // Fetch all questions for the current quiz
+                // Fetch all questions scoped to the current quiz
                 const questions = Array.from(document.querySelectorAll(`#quiz-edit-${quizId} [id^=edit-question-]`)).map(questionEl => {
-                    const questionId = questionEl.id;  // Extract question ID
-
-                    console.log("Fetching question data for Question ID:", questionId); // Debugging: Log question IDs
+                    const questionId = questionEl.id.replace('edit-question-', '');  // Extract question ID
 
                     // Fetch all options for the current question
                     const options = Array.from(document.querySelectorAll(`#edit-question-${questionId} ~ ul [id^=edit-option-]`)).map(optionEl => optionEl.value);
@@ -249,20 +242,13 @@ function saveCourse(courseId) {
                 };
             });
 
-            // Log lessons being captured
-            console.log("Captured Lesson Title:", lessonTitleEl.value);
-            console.log("Captured Lesson Content:", document.getElementById(`edit-lesson-content-${lessonId}`).value);
-            console.log("Captured Quizzes:", quizzes);
-
             // Return lesson object
             return {
                 lesson_title: lessonTitleEl.value,
                 lesson_content: document.getElementById(`edit-lesson-content-${lessonId}`).value,
-                quiz: quizzes
+                quizzes: quizzes
             };
         });
-
-        console.log("Captured Lessons:", lessons); // Debugging: Log lessons
 
         // Return module object
         return {
@@ -296,6 +282,8 @@ function saveCourse(courseId) {
           console.error('Error updating course:', error);
       });
 }
+
+
 
 
 
