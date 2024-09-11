@@ -7,14 +7,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
-from django.http import JsonResponse
+from django.db.models import Subquery
+from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 
 from antropic_api.anthropic_response import get_ai_course_details
 from course.models import Course, Question, QuizScore, CourseEnrollment
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
-from services import TokenService, EmailServices
+from services import EmailServices
 from users.models import User, UserInvitation
 
 
@@ -32,16 +33,17 @@ def signup(request):
         elif User.objects.filter(email=email).exists():
             messages.error(request, 'An account with this email already exists.')
         else:
+            invitations = UserInvitation.objects.filter(email=email, status=UserInvitation.PENDING)
             user = User.objects.create_user(
                 email=email,
                 password=password,
                 first_name=first_name,
-                last_name=last_name)
-            invitations = UserInvitation.objects.filter(email=email, status=UserInvitation.PENDING)
+                last_name=last_name,
+            )
             for invitation in invitations:
-                course = invitation.course
                 CourseEnrollment.objects.create(
-                    course=course,
+                    invited_by=invitation.admin,
+                    course=invitation.course,
                     user=user)
                 invitation.status = UserInvitation.ACCEPTED
                 invitation.save()
@@ -114,7 +116,6 @@ def dashboard(request):
             os.remove(pdf_file_path)
         courses = Course.objects.all()
         return render(request, 'dashboard.html', {'courses': courses})
-
     except Exception as e:
         return render(request, 'dashboard.html', {
             'courses': Course.objects.all(),
@@ -149,15 +150,22 @@ def result_view(request):
     results = []
     search_query = request.GET.get('search', '')
     selected_course_id = request.GET.get('course', '')
-
+    current_admin = request.user
+    if not current_admin.is_admin:
+        return HttpResponseForbidden("You are not authorized to view this page.")
     courses = Course.objects.all()
-
     filtered_courses = courses
     if selected_course_id:
         filtered_courses = filtered_courses.filter(id=selected_course_id)
+    invited_user_emails = UserInvitation.objects.filter(
+        admin=current_admin,
+        status=UserInvitation.ACCEPTED
+    ).values_list('email', flat=True)
+
+    invited_users = User.objects.filter(email__in=Subquery(invited_user_emails)).distinct()
 
     for course in filtered_courses:
-        users = User.objects.filter(
+        users = invited_users.filter(
             quiz_scores__quiz__lesson__module__course=course
         ).filter(
             Q(first_name__icontains=search_query) |
@@ -167,7 +175,6 @@ def result_view(request):
         for user in users:
             total_score = 0
             obtained_score = 0
-            # Calculate the total score by summing up all questions in all quizzes for this course
             quizzes = course.modules.all().values_list('lessons__quizzes', flat=True)
             total_questions = Question.objects.filter(quiz__in=quizzes).count()
             total_score = total_questions * 10  # Each question is worth 10 marks
@@ -199,51 +206,17 @@ def send_invite(request, course_id):
         data = json.loads(request.body)
         email = data.get('email')
         course = get_object_or_404(Course, id=course_id)
-        print(course)
         if email:
             try:
                 redirect_url = request.META.get('HTTP_ORIGIN')
                 EmailServices.send_email_to_client(email, redirect_url)
             except Exception as e:
                 print(e)
-            invitation = UserInvitation.objects.create(email=email, course=course)
+            invitation = UserInvitation.objects.create(email=email, course=course, admin=request.user)
             invitation.save()
             return JsonResponse({'status': 'success'})
         else:
             return JsonResponse({'status': 'error', 'message': 'Invalid email.'})
-
-
-@login_required
-def invite_user(request):
-    courses = Course.objects.all()
-    users = User.objects.all()
-
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        course_id = request.POST.get('course_id')
-        user = get_object_or_404(User, email=email)
-        course = get_object_or_404(Course, id=course_id)
-        invitation_link = TokenService.get_invitation_link(request.META.get('HTTP_ORIGIN'), course.id, user.id)
-        EmailServices.send_email_to_client(user, user.email, invitation_link)
-
-    return render(request, 'invite_users.html', {
-        'courses': courses,
-        'users': users
-    })
-
-
-@login_required
-def accept_invitation(request, token):
-    course_id, user_id = TokenService.decode_token(token)
-    user = get_object_or_404(User, id=user_id)
-    course = get_object_or_404(Course, id=course_id)
-    if CourseEnrollment.objects.filter(user=user, course=course).exists():
-        messages.warning(request, 'You are already enrolled in this course.')
-    else:
-        user_enrollment = CourseEnrollment.objects.create(user=user, course=course)
-        user_enrollment.save()
-        messages.success(request, 'You have successfully enrolled in the course.')
-    return redirect('home')
 
 
 @login_required

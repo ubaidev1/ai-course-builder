@@ -1,5 +1,5 @@
 {
-  "API_KEY": "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",
+  "API_KEY": "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",
   "model": "claude-3-5-sonnet-20240620",
   "max_tokens": 8192,
   "temperature": 0.7,
