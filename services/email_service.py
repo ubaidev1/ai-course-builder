@@ -11,16 +11,14 @@ class EmailServices:
     @staticmethod
     def send_email_to_client(email, redirect_url, template_name='invitation_email.html',
                              subject="Course Invitation Link"):
-
         kwargs = {
             'redirect_url': redirect_url
         }
-
         message = render_to_string(template_name, kwargs)
         from_email = settings.EMAIL_HOST_USER
         recipient_list = [email]
 
         try:
-            send_mail(subject, message, from_email, recipient_list, html_message=message)
+            send_mail(subject, message, from_email, recipient_list, html_message=message, fail_silently=False)
         except Exception as e:
             print(e)

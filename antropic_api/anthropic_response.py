@@ -101,11 +101,3 @@ def get_ai_course_details(config_file, pdf_file_path):
 
     # Extract and parse the JSON from Claude's response
     return extract_json_from_message(message)
-
-# Run the main function
-# if __name__ == "__main__":
-#     config_file = "config.json"  # The JSON file with the configuration
-#     pdf_file_path = "test.pdf"  # Path to your PDF file
-#
-#     json_output = get_ai_course_details(config_file, pdf_file_path)
-#     print(json_output)
