@@ -2,12 +2,21 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
-
-from .models import Course, Lesson, QuizScore, Quiz
+from users.models import User, UserInvitation
+from .models import Course, Lesson, QuizScore, Quiz, CourseEnrollment
 
 
 @login_required
 def home_view(request, course_id=None):
+    # check for invitation
+    invitations = UserInvitation.objects.filter(email=request.user.email, status=UserInvitation.PENDING)
+    for invitation in invitations:
+        CourseEnrollment.objects.create(
+            invited_by=invitation.admin,
+            course=invitation.course,
+            user=request.user)
+        invitation.status = UserInvitation.ACCEPTED
+        invitation.save()
     course_progress = get_course_progress(request.user)
     progress = None
     quiz_score = None
@@ -34,9 +43,6 @@ def next_lesson_view(request, course_id):
 def retake_quiz(request, course_id):
     # Delete the user's existing quiz scores for the given course
     QuizScore.objects.filter(user=request.user, quiz__lesson__module__course_id=course_id).delete()
-
-
-    # After resetting, take the user to the first lesson in the course
     course = get_object_or_404(Course, id=course_id)
     next_lesson = get_next_lesson(course, request.user)
     if next_lesson:
@@ -108,9 +114,9 @@ def get_next_lesson(course, user):
 
 
 def get_course_progress(user):
-    # courses = Course.objects.filter(is_published=True, enrollment__user=user)
-    # if user.is_admin:
-    courses = Course.objects.filter(is_published=True)
+    courses = Course.objects.filter(is_published=True, enrollment__user=user)
+    if user.is_admin:
+        courses = Course.objects.filter(is_published=True)
     course_progress = []
     for course in courses:
         total_quizzes = Quiz.objects.filter(lesson__module__course=course).count()

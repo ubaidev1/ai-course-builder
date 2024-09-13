@@ -3,6 +3,8 @@ import os
 
 from antropic_api.anthropic_response import get_ai_course_details
 from course.models import Course, Question, QuizScore, CourseEnrollment
+from users.models.invitations import UserInvitation
+from users.models import User
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -15,8 +17,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
 from services import EmailServices
-from users.models import User, UserInvitation
-
 
 def signup(request):
     if request.user.is_authenticated:
@@ -30,22 +30,14 @@ def signup(request):
         if not first_name or not last_name or not email or not password:
             messages.error(request, 'Please fill in all fields.')
         elif User.objects.filter(email=email).exists():
-            messages.error(request, 'An account with this email already exists.')
+            messages.error(request, 'Already have an account, Please Login!')
         else:
-            invitations = UserInvitation.objects.filter(email=email, status=UserInvitation.PENDING)
-            user = User.objects.create_user(
+            User.objects.create_user(
                 email=email,
                 password=password,
                 first_name=first_name,
                 last_name=last_name,
             )
-            for invitation in invitations:
-                CourseEnrollment.objects.create(
-                    invited_by=invitation.admin,
-                    course=invitation.course,
-                    user=user)
-                invitation.status = UserInvitation.ACCEPTED
-                invitation.save()
             return redirect('login')
     return render(request, 'signup.html')
 
@@ -85,7 +77,6 @@ def login_view(request):
                 return redirect('home')
             else:
                 messages.error(request, 'Invalid email or password.')
-
     return render(request, 'login.html')
 
 
