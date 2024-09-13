@@ -1,8 +1,9 @@
 
-*.pyc
+*.pyc*
 *.xml
 /.idea
 __pycache__
 .idea/
 *.iml
 .env
+*.log

@@ -1,6 +1,8 @@
 import json
 import os
 
+from antropic_api.anthropic_response import get_ai_course_details
+from course.models import Course, Question, QuizScore, CourseEnrollment
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -10,9 +12,6 @@ from django.db.models import Q
 from django.db.models import Subquery
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
-
-from antropic_api.anthropic_response import get_ai_course_details
-from course.models import Course, Question, QuizScore, CourseEnrollment
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
 from services import EmailServices
@@ -105,18 +104,16 @@ def dashboard(request):
         if request.method == 'POST' and request.FILES.get('pdf_file'):
             course_name = request.POST.get('course_name')
             pdf_file = request.FILES['pdf_file']
-            fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+            fs = FileSystemStorage(location='/tmp')
             filename = fs.save(pdf_file.name, pdf_file)
             pdf_file_path = fs.path(filename)
-            try:
-                json_data = get_ai_course_details('config.json', pdf_file_path)
-            except Exception as e:
-                print('error', e, 'ERROR')
+            json_data = get_ai_course_details('config.json', pdf_file_path)
             data = json.loads(json_data)
             create_course(data, course_name)
             os.remove(pdf_file_path)
         courses = Course.objects.all()
         return render(request, 'dashboard.html', {'courses': courses})
+
     except Exception as e:
         return render(request, 'dashboard.html', {
             'courses': Course.objects.all(),
@@ -191,7 +188,7 @@ def result_view(request):
             total_score = total_questions * 10  # Each question is worth 10 marks
             # Calculate the obtained score
             latest_quiz_score = QuizScore.objects.filter(user=user, quiz__lesson__module__course=course) \
-                .order_by('-created_at').first()  # Assuming there's a 'created_at' or timestamp field
+                .order_by('-created_at').first()
             if latest_quiz_score:
                 obtained_score = latest_quiz_score.score
             percentage = (obtained_score / total_score) * 100 if total_score > 0 else 0

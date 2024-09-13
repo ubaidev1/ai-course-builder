@@ -1,6 +1,5 @@
-from django.db import transaction
-
 from course.models import Course, Module, Lesson, Quiz, Question, Option
+from django.db import transaction
 
 
 def create_course(data, course_name):
