@@ -5,3 +5,5 @@
 __pycache__
 .idea/
 *.iml
+.env
+*.log
