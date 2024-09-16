@@ -23,8 +23,12 @@ def home_view(request, course_id=None):
         course_id = token_data.get('course_id')
         course = get_object_or_404(Course, id=course_id)
         admin = get_object_or_404(User, id=admin_id)
-        UserInvitation.objects.create(email=request.user.email, admin=admin, course=course)
-    # check for invitation
+        existing_enrollment = CourseEnrollment.objects.filter(user=request.user, course=course).exists()
+        if not existing_enrollment:
+            invitation_exists = UserInvitation.objects.filter(email=request.user.email, course=course,
+                                                              admin=admin).exists()
+            if not invitation_exists:
+                UserInvitation.objects.create(email=request.user.email, admin=admin, course=course)
     invitations = UserInvitation.objects.filter(email=request.user.email, status=UserInvitation.PENDING)
     for invitation in invitations:
         CourseEnrollment.objects.create(
