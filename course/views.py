@@ -1,13 +1,29 @@
+import base64
+
 from django.contrib.auth.decorators import login_required
+from django.core import signing
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from users.models import User, UserInvitation
+
 from .models import Course, Lesson, QuizScore, Quiz, CourseEnrollment
 
 
-@login_required
 def home_view(request, course_id=None):
+    token = request.GET.get('token')
+    if token:
+        request.session['invitation_token'] = token
+    if not request.user.is_authenticated:
+        return redirect('/')
+    token = request.session.pop('invitation_token', None)
+    if token:
+        token_data = signing.loads(token)
+        admin_id = token_data.get('user_id')
+        course_id = token_data.get('course_id')
+        course = get_object_or_404(Course, id=course_id)
+        admin = get_object_or_404(User, id=admin_id)
+        UserInvitation.objects.create(email=request.user.email, admin=admin, course=course)
     # check for invitation
     invitations = UserInvitation.objects.filter(email=request.user.email, status=UserInvitation.PENDING)
     for invitation in invitations:
