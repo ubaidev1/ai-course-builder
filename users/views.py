@@ -1,22 +1,28 @@
+import base64
 import json
 import os
 
 from antropic_api.anthropic_response import get_ai_course_details
 from course.models import Course, Question, QuizScore, CourseEnrollment
-from users.models.invitations import UserInvitation
-from users.models import User
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core import signing
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
 from django.db.models import Subquery
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
 from services import EmailServices
+from users.models import User
+from users.models.invitations import UserInvitation
+
 
 def signup(request):
     if request.user.is_authenticated:
@@ -206,6 +212,12 @@ def send_invite(request, course_id):
         data = json.loads(request.body)
         email = data.get('email')
         course = get_object_or_404(Course, id=course_id)
+        user_id = request.user.id
+        token = signing.dumps({
+            'course_id': str(course_id),
+            'user_id': str(user_id)
+        })
+        invite_link = f"{request.build_absolute_uri(reverse('home'))}?token={token}"
         if email:
             try:
                 redirect_url = request.META.get('HTTP_ORIGIN')
@@ -216,7 +228,9 @@ def send_invite(request, course_id):
             invitation.save()
             return JsonResponse({'status': 'success'})
         else:
-            return JsonResponse({'status': 'error', 'message': 'Invalid email.'})
+            return JsonResponse({'status': 'success', 'invite_link': invite_link})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
 
 
 @login_required
