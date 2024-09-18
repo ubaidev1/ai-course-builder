@@ -11,7 +11,6 @@ Admin - Course Actions
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
         <h2 class="mb-3 mb-md-0">Courses</h2>
         <div class="d-flex flex-column flex-md-row">
-            <a href="{% url 'edit_courses' %}" class="btn btn-primary mb-2 mb-md-0 me-md-2">Edit a Course</a>
             <a href="{% url 'dashboard' %}" class="btn btn-primary">Create a Course</a>
         </div>
     </div>
@@ -31,6 +30,7 @@ Admin - Course Actions
 
                 <!-- Invite button -->
                 <button class="btn btn-outline-primary invite-button" data-course-id="{{ course.id }}">Invite</button>
+                <a  href="{% url 'edit_courses' %}" class="btn btn-outline-primary ms-2">Edit</a>
             </div>
         </div>
 

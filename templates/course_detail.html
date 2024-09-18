@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-<li class="breadcrumb-item"><a style="text-decoration:none" ; href="{% url 'home' %}">Courses</a></li>
-<li class="breadcrumb-item"><a style="text-decoration:none" href="{% url 'course_detail' course.id lesson.id %}">{{course.title}}
+<li class="breadcrumb-item"><a style="color: #495057; text-decoration:none" ; href="{% url 'home' %}">Courses</a></li>
+<li class="breadcrumb-item"><a style="color: #495057; text-decoration:none" href="{% url 'course_detail' course.id lesson.id %}">{{course.title}}
 
 </a></li>
 
@@ -177,7 +177,7 @@
     }
 
     .breadcrumb-item + .breadcrumb-item::before {
-        color: #4F46E5;
+        color: #495057;
     }
 
     .nav-link {
