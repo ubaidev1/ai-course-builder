@@ -221,7 +221,7 @@ def send_invite(request, course_id):
         if email:
             try:
                 redirect_url = request.META.get('HTTP_ORIGIN')
-                EmailServices.send_email_to_client(email, redirect_url)
+                EmailServices.send_email_to_client(email, course, request.user, redirect_url)
             except Exception as e:
                 print(e)
             invitation = UserInvitation.objects.create(email=email, course=course, admin=request.user)
