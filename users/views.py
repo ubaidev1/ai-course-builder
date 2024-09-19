@@ -218,7 +218,7 @@ def send_invite(request, course_id):
             'course_id': str(course_id),
             'user_id': str(user_id)
         })
-        invite_link = f"{request.build_absolute_uri(reverse('home'))}?token={token}"
+        invite_link = f"{request.build_absolute_uri(reverse('enroll_course', args=[course_id]))}?token={token}"
         if email:
             try:
                 redirect_url = request.META.get('HTTP_ORIGIN')
@@ -232,6 +232,13 @@ def send_invite(request, course_id):
             return JsonResponse({'status': 'success', 'invite_link': invite_link})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
+
+def enroll_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    token = request.GET.get('token')
+
+    return render(request, 'enroll_course.html', {'course': course, 'token': token})
 
 
 @login_required
