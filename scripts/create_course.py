@@ -2,7 +2,7 @@ from course.models import Course, Module, Lesson, Quiz, Question, Option
 from django.db import transaction
 
 
-def create_course(data, course_name):
+def create_course(user, data, course_name):
     try:
         with transaction.atomic():
             course_description = data.get('course_description')
@@ -10,6 +10,7 @@ def create_course(data, course_name):
             course = Course.objects.create(
                 title=course_name,
                 description=course_description,
+                created_by=user
             )
 
             for module_data in data.get('modules', []):

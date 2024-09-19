@@ -106,7 +106,7 @@ def dashboard(request):
             pdf_file_path = fs.path(filename)
             json_data = get_ai_course_details('config.json', pdf_file_path)
             data = json.loads(json_data)
-            create_course(data, course_name)
+            create_course(request.user, data, course_name)
             os.remove(pdf_file_path)
         courses = Course.objects.all()
         return render(request, 'dashboard.html', {'courses': courses})
@@ -134,7 +134,8 @@ def course_actions(request):
         messages.error(request, 'You do not have permission to access this page.')
         return redirect('home')
     context = {
-        'courses': Course.objects.all()
+        'courses': Course.objects.filter(created_by=request.user)
+
     }
     return render(request, 'course_actions.html', context)
 
