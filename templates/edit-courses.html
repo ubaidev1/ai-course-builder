@@ -59,131 +59,124 @@
     <div class="card">
         <div class="card-body">
             <h5>Courses</h5>
-            <ul class="list-group">
-                {% for course in courses %}
-                <li class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <strong id="course-title-{{ course.id }}">{{ course.title }}</strong>
-                        <button type="button" class="btn btn-link" data-bs-toggle="collapse"
-                                data-bs-target="#course-{{ course.id }}">
-                            Edit Details
-                        </button>
-                    </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong id="course-title-{{ course.id }}">{{ course.title }}</strong>
 
-                    <div id="course-{{ course.id }}" class="collapse collapse-content">
-                        <form id="course-form-{{ course.id }}"
-                              onsubmit="event.preventDefault(); saveCourse('{{ course.id }}')">
-                            <!-- Course Title -->
-                            <label>Course Title:</label>
-                            <input type="text" class="form-control mb-2" id="edit-course-title-{{ course.id }}"
-                                   value="{{ course.title }}">
+                </div>
 
-                            <!-- Course Description -->
-                            <label>Course Description:</label>
-                            <textarea class="form-control mb-2 textarea-custom"
-                                      id="edit-course-description-{{ course.id }}">{{ course.description }}</textarea>
+                <div id="course-{{ course.id }}" >
+                    <form id="course-form-{{ course.id }}"
+                          onsubmit="event.preventDefault(); saveCourse('{{ course.id }}')">
+                        <!-- Course Title -->
+                        <label>Course Title:</label>
+                        <input type="text" class="form-control mb-2" id="edit-course-title-{{ course.id }}"
+                               value="{{ course.title }}">
 
-                            <ul>
-                                {% for module in course.modules.all %}
-                                <li>
-                                    <strong id="module-title-{{ module.id }}">Module: {{ module.title }}</strong>
-                                    <button type="button" class="btn btn-link"
-                                            onclick="toggleEditModule('{{ module.id }}')">Edit Module
-                                    </button>
+                        <!-- Course Description -->
+                        <label>Course Description:</label>
+                        <textarea class="form-control mb-2 textarea-custom"
+                                  id="edit-course-description-{{ course.id }}">{{ course.description }}</textarea>
 
-                                    <div id="module-edit-{{ module.id }}" class="collapse collapse-content">
-                                        <!-- Module Title -->
-                                        <label>Module Title:</label>
-                                        <input type="text" class="form-control mb-2"
-                                               id="edit-module-title-{{ module.id }}" value="{{ module.title }}">
+                        <ul>
+                            {% for module in course.modules.all %}
+                            <li>
+                                <strong id="module-title-{{ module.id }}">Module: {{ module.title }}</strong>
+                                <button type="button" class="btn btn-link"
+                                        onclick="toggleEditModule('{{ module.id }}')">Edit Module
+                                </button>
 
-                                        <!-- Lesson Details -->
-                                        <ul>
-                                            {% for lesson in module.lessons.all %}
-                                            <li>
-                                                <strong id="lesson-title-{{ lesson.id }}">Lesson:
-                                                    {{ lesson.title }}</strong>
-                                                <button type="button" class="btn btn-link"
-                                                        onclick="toggleEditLesson('{{ lesson.id }}')">Edit Lesson
-                                                </button>
+                                <div id="module-edit-{{ module.id }}">
+                                    <!-- Module Title -->
+                                    <label>Module Title:</label>
+                                    <input type="text" class="form-control mb-2"
+                                           id="edit-module-title-{{ module.id }}" value="{{ module.title }}">
 
-                                                <div id="lesson-edit-{{ lesson.id }}" class="collapse collapse-content">
-                                                    <!-- Lesson Title -->
-                                                    <label>Lesson Title:</label>
-                                                    <input type="text" class="form-control mb-2"
-                                                           id="edit-lesson-title-{{ lesson.id }}"
-                                                           value="{{ lesson.title }}">
+                                    <!-- Lesson Details -->
+                                    <ul>
+                                        {% for lesson in module.lessons.all %}
+                                        <li>
+                                            <strong id="lesson-title-{{ lesson.id }}">Lesson:
+                                                {{ lesson.title }}</strong>
+                                            <button type="button" class="btn btn-link"
+                                                    onclick="toggleEditLesson('{{ lesson.id }}')">Edit Lesson
+                                            </button>
 
-                                                    <!-- Lesson Content -->
-                                                    <label>Lesson Content:</label>
-                                                    <textarea class="form-control mb-2 textarea-custom"
-                                                              id="edit-lesson-content-{{ lesson.id }}">{{ lesson.content }}</textarea>
+                                            <div id="lesson-edit-{{ lesson.id }}" class="collapse collapse-content">
+                                                <!-- Lesson Title -->
+                                                <label>Lesson Title:</label>
+                                                <input type="text" class="form-control mb-2"
+                                                       id="edit-lesson-title-{{ lesson.id }}"
+                                                       value="{{ lesson.title }}">
 
-                                                    <ul>
-                                                        {% for quiz in lesson.quizzes.all %}
-                                                        <li>
-                                                            <strong>Quiz:</strong>
-                                                            <button type="button" class="btn btn-link"
-                                                                    onclick="toggleEditQuiz('{{ quiz.id }}')">Edit Quiz
-                                                            </button>
+                                                <!-- Lesson Content -->
+                                                <label>Lesson Content:</label>
+                                                <textarea class="form-control mb-2 textarea-custom"
+                                                          id="edit-lesson-content-{{ lesson.id }}">{{ lesson.content }}</textarea>
 
-                                                            <div id="quiz-edit-{{ quiz.id }}"
-                                                                 class="collapse collapse-content">
-                                                                <label>Quiz Title:</label>
-                                                                <input type="text" id="edit-quiz-title-{{ quiz.id }}"
-                                                                       value="{{ quiz.title }}"
-                                                                       class="form-control mb-2">
+                                                <ul>
+                                                    {% for quiz in lesson.quizzes.all %}
+                                                    <li>
+                                                        <strong>Quiz:</strong>
+                                                        <button type="button" class="btn btn-link"
+                                                                onclick="toggleEditQuiz('{{ quiz.id }}')">Edit Quiz
+                                                        </button>
 
-                                                                <ul>
-                                                                    {% for question in quiz.questions.all %}
-                                                                    <li>
-                                                                        <strong>Question:</strong>
-                                                                        <input type="text"
-                                                                               id="edit-question-{{ question.id }}"
-                                                                               value="{{ question.question_text }}"
-                                                                               class="form-control mb-2">
-                                                                        <strong>Answer:</strong>
-                                                                        <input type="text"
-                                                                               id="edit-answer-{{ question.id }}"
-                                                                               value="{{ question.correct_answer }}"
-                                                                               class="form-control mb-2">
+                                                        <div id="quiz-edit-{{ quiz.id }}"
+                                                             class="collapse collapse-content">
+                                                            <label>Quiz Title:</label>
+                                                            <input type="text" id="edit-quiz-title-{{ quiz.id }}"
+                                                                   value="{{ quiz.title }}"
+                                                                   class="form-control mb-2">
 
-                                                                        <ul>
-                                                                            {% for option in question.options.all %}
-                                                                            <li>
-                                                                                <strong>Option:</strong>
-                                                                                <input type="text"
-                                                                                       id="edit-option-{{ option.id }}"
-                                                                                       value="{{ option.option_text }}"
-                                                                                       class="form-control mb-2">
-                                                                                {% if option.is_correct %}
-                                                                                <span class="badge bg-success">Correct</span>
-                                                                                {% endif %}
-                                                                            </li>
-                                                                            {% endfor %}
-                                                                        </ul>
-                                                                    </li>
-                                                                    {% endfor %}
-                                                                </ul>
-                                                            </div>
-                                                        </li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                            {% endfor %}
-                                        </ul>
-                                    </div>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </form>
-                        <button type="button"  style="background-color: #007bff" class="btn btn-success mt-2" onclick="saveCourse('{{ course.id }}')">Save
-                        </button>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+                                                            <ul>
+                                                                {% for question in quiz.questions.all %}
+                                                                <li>
+                                                                    <strong>Question:</strong>
+                                                                    <input type="text"
+                                                                           id="edit-question-{{ question.id }}"
+                                                                           value="{{ question.question_text }}"
+                                                                           class="form-control mb-2">
+                                                                    <strong>Answer:</strong>
+                                                                    <input type="text"
+                                                                           id="edit-answer-{{ question.id }}"
+                                                                           value="{{ question.correct_answer }}"
+                                                                           class="form-control mb-2">
+
+                                                                    <ul>
+                                                                        {% for option in question.options.all %}
+                                                                        <li>
+                                                                            <strong>Option:</strong>
+                                                                            <input type="text"
+                                                                                   id="edit-option-{{ option.id }}"
+                                                                                   value="{{ option.option_text }}"
+                                                                                   class="form-control mb-2">
+                                                                            {% if option.is_correct %}
+                                                                            <span class="badge bg-success">Correct</span>
+                                                                            {% endif %}
+                                                                        </li>
+                                                                        {% endfor %}
+                                                                    </ul>
+                                                                </li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </form>
+                    <button type="button" style="background-color: #007bff" class="btn btn-success mt-2"
+                            onclick="saveCourse('{{ course.id }}')">Save
+                    </button>
+                </div>
+
         </div>
     </div>
 </div>

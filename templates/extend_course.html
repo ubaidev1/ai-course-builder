@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extend Course</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .card {
+            margin-bottom: 20px;
+        }
+
+        .collapse-content {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+
+<body>
+{% include 'navbar.html' %}
+
+<div class="container">
+    <h1 class="text-center mb-5">Extend Course - {{ course.title }}</h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h5><b>Upload PDF File for Generating Content for {{ course.title }}</b></h5>
+        </div>
+        <div class="card-body">
+            <form action="{% url 'extend_course' course.id %}" method="post" enctype="multipart/form-data" onsubmit="return validatePDFFile()">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="pdfFileExisting" class="form-label">Select PDF File:</label>
+                    <input class="form-control" type="file" id="pdfFileExisting" name="pdf_file"
+                           accept="application/pdf" required>
+                </div>
+                <button type="submit" class="btn btn-warning">Upload</button>
+            </form>
+            <div id="fileErrorExisting" class="text-danger mt-2"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Client-side PDF validation script -->
+<script>
+    function validatePDFFile() {
+        var fileInput = document.getElementById('pdfFileExisting');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(\.pdf)$/i;
+        var fileError = document.getElementById('fileErrorExisting');
+
+        // Clear any previous error
+        fileError.textContent = '';
+
+        if (!allowedExtensions.exec(filePath)) {
+            fileError.textContent = "Please upload a valid PDF file.";
+            fileInput.value = '';
+            return false;
+        }
+
+        // Optionally, you can check the MIME type of the file
+        var file = fileInput.files[0];
+        if (file && file.type !== 'application/pdf') {
+            fileError.textContent = "Please upload a valid PDF file.";
+            fileInput.value = '';
+            return false;
+        }
+
+        return true;
+    }
+</script>
+
+</body>
+</html>

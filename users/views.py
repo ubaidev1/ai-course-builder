@@ -119,13 +119,23 @@ def dashboard(request):
 
 
 @login_required
-def edit_courses(request):
+def edit_course(request, course_id):
     if not request.user.is_admin:
         messages.error(request, 'You do not have permission to access this page.')
         return redirect('home')
 
-    courses = Course.objects.all()
-    return render(request, 'edit-courses.html', {'courses': courses})
+    # Get the specific course to edit
+    course = get_object_or_404(Course, id=course_id)
+
+    if request.method == 'POST':
+        course.title = request.POST.get('course_title')
+        course.description = request.POST.get('course_description')
+        course.save()
+        messages.success(request, 'Course updated successfully!')
+        return redirect('edit_course', course_id=course_id)
+
+    # Render the edit form for the specific course
+    return render(request, 'edit-courses.html', {'course': course})
 
 
 @login_required
@@ -254,19 +264,20 @@ def enroll_course(request, course_id):
 
 
 @login_required
-def extend_course(request):
+def extend_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
     if request.method == 'POST':
-        course_id = request.POST.get('course_id')
         pdf_file = request.FILES.get('pdf_file')
-        if not course_id or not pdf_file:
-            messages.error(request, "Please select a course and upload a PDF file.")
-            return redirect('dashboard')
-        course = get_object_or_404(Course, id=course_id)
-        fs = FileSystemStorage(location=settings.MEDIA_ROOT)
+        if not pdf_file:
+            messages.error(request, "Please upload a PDF file.")
+            return redirect('extend_course', course_id=course.id)
+        fs = FileSystemStorage(location='/tmp')
         filename = fs.save(pdf_file.name, pdf_file)
         pdf_file_path = fs.path(filename)
         json_data = get_ai_course_details('config.json', pdf_file_path)
         data = json.loads(json_data)
         extend_existing_course(data, course)
-    courses = Course.objects.all()
-    return render(request, 'dashboard.html', {'courses': courses})
+        messages.success(request, f"Course '{course.title}' has been extended with new content.")
+        os.remove(pdf_file_path)
+        return redirect('course_actions')
+    return render(request, 'extend_course.html', {'course': course})
