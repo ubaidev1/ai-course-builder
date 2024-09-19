@@ -9,6 +9,7 @@ urlpatterns = [
     path('course_actions/', course_actions, name="course_actions"),
     path('toggle-course-publish/<uuid:course_id>/', toggle_course_publish, name='toggle_course_publish'),
     path('update-course/<uuid:course_id>/', update_course, name='update_course'),
+    path('delete-course/<uuid:course_id>/', delete_course, name='delete_course'),
     path('result/', result_view, name='result'),
     path('send-invite/<uuid:course_id>/', send_invite, name='send_invite'),
     path('enroll_course/<uuid:course_id>/', enroll_course, name='enroll_course'),

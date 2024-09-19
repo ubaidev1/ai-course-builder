@@ -30,7 +30,9 @@ Admin - Course Actions
 
                 <!-- Invite button -->
                 <button class="btn btn-outline-primary invite-button" data-course-id="{{ course.id }}">Invite</button>
-                <a href="{% url 'edit_courses' %}" class="btn btn-outline-primary ms-2">Edit</a>
+                <a href="{% url 'edit_courses' %}" class="btn btn-outline-warning ms-2">Edit</a>
+                <a href="{% url 'delete_course' course.id %}" class="btn btn-outline-danger ms-2">Delete</a>
+
             </div>
         </div>
 

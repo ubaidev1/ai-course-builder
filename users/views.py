@@ -129,13 +129,25 @@ def edit_courses(request):
 
 
 @login_required
+def delete_course(request, course_id):
+    if not request.user.is_authenticated:
+        return redirect('/')
+    course = get_object_or_404(Course, id=course_id)
+    if request.method == 'POST':
+        course.is_archived = True
+        course.save()
+        return redirect('course_actions')
+
+    return render(request, 'confirm_delete.html', {'course': course})
+
+
+@login_required
 def course_actions(request):
     if not request.user.is_admin:
         messages.error(request, 'You do not have permission to access this page.')
         return redirect('home')
     context = {
-        'courses': Course.objects.filter(created_by=request.user)
-
+        'courses': Course.objects.filter(created_by=request.user, is_archived=False)
     }
     return render(request, 'course_actions.html', context)
 
