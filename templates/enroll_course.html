@@ -74,52 +74,69 @@
         .module-description {
             color: #6c757d;
         }
+           .navbar-dark .navbar-nav .nav-link {
+        color: #ffffff;
+    }
+
+    .navbar-dark .navbar-brand:hover {
+        color: #ffffff;
+    }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="row">
-            <!-- Left Column: Course Details -->
-            <div class="col-md-8">
-                <!-- Course Name -->
-                <h3 class="display-4 font-weight-bold">{{ course.title }}</h3>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">DoubleLoop.ai</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
 
-                <!-- Course Summary -->
-                <p class="lead mt-3 text-muted">{{ course.description }}</p>
+<div class="container mt-5">
+    <div class="row">
+        <!-- Left Column: Course Details -->
+        <div class="col-md-8">
+            <!-- Course Name -->
+            <h3 class="display-4 font-weight-bold">{{ course.title }}</h3>
 
-                <!-- Modules List -->
-                <h5 class="mt-5 mb-3">Course Modules</h5>
-                <ul class="list-group list-group-flush">
-                    {% for module in course.modules.all %}
-                    <li class="list-group-item">
-                        <h6 class="module-title">{{ module.title }}</h6>
-                        <p class="module-description">{{ module.description }}</p>
-                    </li>
-                    {% empty %}
-                    <li class="list-group-item">No modules available for this course.</li>
-                    {% endfor %}
-                </ul>
-            </div>
+            <!-- Course Summary -->
+            <p class="lead mt-3 text-muted">{{ course.description }}</p>
 
-            <!-- Right Column: Action -->
-            <div class="col-md-4">
-                <div class="card sticky-top">
-                    <div class="card-body text-center">
-                        <h4 class="card-title">Ready to Start?</h4>
-                        <p class="card-text mb-4">Enroll in this course and start learning right away.</p>
-                        <!-- Button to take course -->
-                        <a href="{% url 'home' %}?token={{ token }}" class="btn btn-primary btn-lg">
-                            Take Course
-                        </a>
-                    </div>
+            <!-- Modules List -->
+            <h5 class="mt-5 mb-3">Course Modules</h5>
+            <ul class="list-group list-group-flush">
+                {% for module in course.modules.all %}
+                <li class="list-group-item">
+                    <h6 class="module-title">{{ module.title }}</h6>
+                    <p class="module-description">{{ module.description }}</p>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No modules available for this course.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Right Column: Action -->
+        <div class="col-md-4">
+            <div class="card sticky-top">
+                <div class="card-body text-center">
+                    <h4 class="card-title">Ready to Start?</h4>
+                    <p class="card-text mb-4">Enroll in this course and start learning right away.</p>
+                    <!-- Button to take course -->
+                    <a href="{% url 'home' %}?token={{ token }}" class="btn btn-primary btn-lg">
+                        Take Course
+                    </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
