@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Edit Course</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -54,26 +54,20 @@
 {% include 'navbar.html' %}
 
 <div class="container">
-    <h1 class="text-center mb-5">Admin Dashboard</h1>
+    <h1 class="text-center mb-5">Edit Course: {{course.title}}</h1>
 
     <div class="card">
         <div class="card-body">
-            <h5>Courses</h5>
-                <div class="d-flex justify-content-between align-items-center">
-                    <strong id="course-title-{{ course.id }}">{{ course.title }}</strong>
-
-                </div>
-
                 <div id="course-{{ course.id }}" >
                     <form id="course-form-{{ course.id }}"
                           onsubmit="event.preventDefault(); saveCourse('{{ course.id }}')">
                         <!-- Course Title -->
-                        <label>Course Title:</label>
+                        <label><strong> Course Title:</strong></label>
                         <input type="text" class="form-control mb-2" id="edit-course-title-{{ course.id }}"
                                value="{{ course.title }}">
 
                         <!-- Course Description -->
-                        <label>Course Description:</label>
+                        <label><strong>Course Description:</strong></label>
                         <textarea class="form-control mb-2 textarea-custom"
                                   id="edit-course-description-{{ course.id }}">{{ course.description }}</textarea>
 
