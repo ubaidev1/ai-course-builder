@@ -31,10 +31,10 @@ Admin - Course Actions
                 <!-- Invite button -->
                 <button class="btn btn-outline-primary invite-button" data-course-id="{{ course.id }}">Invite</button>
                 <a href="{% url 'edit_course' course.id %}" class="btn btn-outline-warning ms-2">Edit</a>
-                <a href="{% url 'delete_course' course.id %}" class="btn btn-outline-danger ms-2">Delete</a>
+                <button class="btn btn-outline-danger ms-2 delete-button" data-course-id="{{ course.id }}"
+                        data-course-title="{{ course.title }}">Delete
+                </button>
                 <a href="{% url 'extend_course' course.id %}" class="btn btn-outline-success ms-2">Extend</a>
-
-
             </div>
         </div>
 
@@ -73,7 +73,35 @@ Admin - Course Actions
 </div>
 
 <script>
+
     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.delete-button').forEach(function(button) {
+        button.addEventListener('click', function() {
+            event.preventDefault();
+            const courseId = this.dataset.courseId;
+            const courseTitle = this.dataset.courseTitle;
+
+            if (confirm(`Are you sure you want to delete the course: "${courseTitle}"?`)) {
+                fetch(`/delete-course/${courseId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.status === 'success') {
+                          alert('Course deleted successfully!');
+                          location.reload();
+                      } else {
+                          alert('Error: ' + data.message);
+                      }
+                  }).catch(() => {
+                      alert('Failed to delete the course.');
+                  });
+            }
+        });
+    });
         document.querySelectorAll('.toggle-publish').forEach(function(switchElement) {
             switchElement.addEventListener('change', function() {
                 const courseId = this.dataset.courseId;

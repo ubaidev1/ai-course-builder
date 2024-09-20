@@ -140,15 +140,13 @@ def edit_course(request, course_id):
 
 @login_required
 def delete_course(request, course_id):
-    if not request.user.is_authenticated:
-        return redirect('/')
-    course = get_object_or_404(Course, id=course_id)
     if request.method == 'POST':
+        course = get_object_or_404(Course, id=course_id)
         course.is_archived = True
         course.save()
-        return redirect('course_actions')
+        return JsonResponse({'status': 'success'})
 
-    return render(request, 'confirm_delete.html', {'course': course})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
 @login_required
