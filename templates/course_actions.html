@@ -30,9 +30,11 @@ Admin - Course Actions
 
                 <!-- Invite button -->
                 <button class="btn btn-outline-primary invite-button" data-course-id="{{ course.id }}">Invite</button>
-                <a href="{% url 'edit_courses' %}" class="btn btn-outline-warning ms-2">Edit</a>
-                <a href="{% url 'delete_course' course.id %}" class="btn btn-outline-danger ms-2">Delete</a>
-
+                <a href="{% url 'edit_course' course.id %}" class="btn btn-outline-warning ms-2">Edit</a>
+                <button class="btn btn-outline-danger ms-2 delete-button" data-course-id="{{ course.id }}"
+                        data-course-title="{{ course.title }}">Delete
+                </button>
+                <a href="{% url 'extend_course' course.id %}" class="btn btn-outline-success ms-2">Extend</a>
             </div>
         </div>
 
@@ -42,8 +44,9 @@ Admin - Course Actions
             <form class="row g-3 align-items-center">
                 <!-- Increase the email input field to take up more space -->
                 <div class="col-md-9">
+                    <!-- Update the input field to accept multiple emails -->
                     <input type="email" id="email-{{ course.id }}" class="form-control"
-                           placeholder="Enter email to invite" required>
+                           placeholder="Enter emails (comma-separated)" required multiple>
                 </div>
                 <!-- Adjust the button column with more precise alignment -->
                 <div class="col-md-3 d-flex justify-content-end">
@@ -61,6 +64,7 @@ Admin - Course Actions
             </div>
         </div>
 
+
         {% endfor %}
         {% else %}
         <p class="text-muted">No courses available.</p>
@@ -69,7 +73,35 @@ Admin - Course Actions
 </div>
 
 <script>
+
     document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.delete-button').forEach(function(button) {
+        button.addEventListener('click', function() {
+            event.preventDefault();
+            const courseId = this.dataset.courseId;
+            const courseTitle = this.dataset.courseTitle;
+
+            if (confirm(`Are you sure you want to delete the course: "${courseTitle}"?`)) {
+                fetch(`/delete-course/${courseId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.status === 'success') {
+                          alert('Course deleted successfully!');
+                          location.reload();
+                      } else {
+                          alert('Error: ' + data.message);
+                      }
+                  }).catch(() => {
+                      alert('Failed to delete the course.');
+                  });
+            }
+        });
+    });
         document.querySelectorAll('.toggle-publish').forEach(function(switchElement) {
             switchElement.addEventListener('change', function() {
                 const courseId = this.dataset.courseId;
@@ -121,35 +153,41 @@ Admin - Course Actions
             });
         });
 
-        document.querySelectorAll('.send-invite-button').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const courseId = this.dataset.courseId;
-                const email = document.getElementById('email-' + courseId).value.trim();
-                if (email) {
-                    fetch(`/send-invite/${courseId}/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ email: email })
-                    }).then(response => response.json())
-                      .then(data => {
-                          if (data.status === 'success') {
-                              alert('Invite sent successfully!');
-                              document.getElementById('invite-form-' + courseId).style.display = 'none';
-                          } else {
-                              alert('Error: ' + data.message);
-                          }
-                      }).catch(() => {
-                          alert('Failed to send invite.');
-                      });
-                } else {
-                    alert('Please enter a valid email.');
-                }
-            });
+    document.querySelectorAll('.send-invite-button').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const courseId = this.dataset.courseId;
+            const emailsInput = document.getElementById('email-' + courseId).value.trim();
+
+            if (emailsInput) {
+                // Split the input by commas and remove any extra spaces
+                const emails = emailsInput.split(',').map(email => email.trim());
+
+                // Send the array of emails to the backend
+                fetch(`/send-invite/${courseId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: emails })  // Pass the list of emails
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.status === 'success') {
+                          alert('Invite(s) sent successfully!');
+                          document.getElementById('invite-form-' + courseId).style.display = 'none';
+                      } else {
+                          alert('Error: ' + data.message);
+                      }
+                  }).catch(() => {
+                      alert('Failed to send invite.');
+                  });
+            } else {
+                alert('Please enter a valid email.');
+            }
         });
     });
+});
+
 
     function copyLink(courseId) {
         const inviteLinkInput = document.getElementById('invitation-link-' + courseId);
@@ -162,28 +200,54 @@ Admin - Course Actions
 <!-- Mobile responsiveness styles -->
 <style>
     @media (max-width: 768px) {
-        /* Make the email input field take up full width */
-        .invite-form .form-control {
-            width: 100%;
+        /* Stack the course title and buttons vertically for smaller screens */
+        .list-group-item {
+            flex-direction: column;
+            align-items: flex-start;
         }
 
-        /* Make the send invite button take up full width and adjust alignment */
-        .invite-form .send-invite-button {
+        /* Make buttons take up full width and stack them vertically */
+        .list-group-item .btn {
             width: 100%;
             margin-top: 10px;
         }
 
-        /* Adjust the copy button and link input field for mobile */
+        /* Ensure the publish switch aligns properly on mobile */
+        .form-switch {
+            margin-top: 10px;
+        }
+
+        /* Make the invite form input field and button stack and take up full width */
+        .invite-form .form-control, .invite-form .btn {
+            width: 100%;
+        }
+
+        /* Adjust the alignment of the copy button and input field */
         .invite-form .d-flex {
             flex-direction: column;
         }
 
         .invite-form .form-control {
-            width: 100%;
             margin-bottom: 10px;
         }
 
+        /* Full width for copy button on smaller screens */
         .invite-form .btn-outline-secondary {
+            width: 100%;
+        }
+
+        /* Make the heading responsive */
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        /* Adjust buttons container to stack on mobile */
+        .d-flex.flex-md-row {
+            flex-direction: column;
+        }
+
+        .d-flex.flex-md-row a {
+            margin-top: 10px;
             width: 100%;
         }
     }

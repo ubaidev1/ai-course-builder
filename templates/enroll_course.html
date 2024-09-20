@@ -6,9 +6,85 @@
     <title>{{ course.name }} - Course Details</title>
     <!-- Bootstrap CSS for styling -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Add custom styles if needed -->
+    <!-- Add custom styles -->
+    <style>
+        body {
+            background-color: #f9f9f9;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        h3.display-4 {
+            font-size: 2.8rem;
+            color: #343a40;
+        }
+
+        p.lead {
+            font-size: 1.25rem;
+            color: #6c757d;
+        }
+
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .card-title {
+            font-size: 1.75rem;
+            color: #007bff;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .list-group-item {
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            margin-bottom: 10px;
+            padding: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .sticky-top {
+            top: 100px;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .module-description {
+            color: #6c757d;
+        }
+           .navbar-dark .navbar-nav .nav-link {
+        color: #ffffff;
+    }
+
+    .navbar-dark .navbar-brand:hover {
+        color: #ffffff;
+    }
+    </style>
 </head>
 <body>
+<<<<<<< HEAD
 <div class="container mt-5">
     <div class="row">
         <!-- Left Column: Course Details -->
@@ -36,6 +112,45 @@
         <!-- Right Column: Action -->
         <div class="col-md-4">
             <div class="card sticky-top" style="top: 70px;">
+=======
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">DoubleLoop.ai</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</nav>
+
+<div class="container mt-5">
+    <div class="row">
+        <!-- Left Column: Course Details -->
+        <div class="col-md-8">
+            <!-- Course Name -->
+            <h3 class="display-4 font-weight-bold">{{ course.title }}</h3>
+
+            <!-- Course Summary -->
+            <p class="lead mt-3 text-muted">{{ course.description }}</p>
+
+            <!-- Modules List -->
+            <h5 class="mt-5 mb-3">Course Modules</h5>
+            <ul class="list-group list-group-flush">
+                {% for module in course.modules.all %}
+                <li class="list-group-item">
+                    <h6 class="module-title">{{ module.title }}</h6>
+                    <p class="module-description">{{ module.description }}</p>
+                </li>
+                {% empty %}
+                <li class="list-group-item">No modules available for this course.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Right Column: Action -->
+        <div class="col-md-4">
+            <div class="card sticky-top">
+>>>>>>> origin/required-changes
                 <div class="card-body text-center">
                     <h4 class="card-title">Ready to Start?</h4>
                     <p class="card-text mb-4">Enroll in this course and start learning right away.</p>
