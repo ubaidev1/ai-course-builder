@@ -233,7 +233,7 @@ def result_view(request):
 def send_invite(request, course_id):
     if request.method == 'POST':
         data = json.loads(request.body)
-        email = data.get('email')
+        emails = data.get('email')  # Expecting a list of emails now
         course = get_object_or_404(Course, id=course_id)
         user_id = request.user.id
         token = signing.dumps({
@@ -241,14 +241,16 @@ def send_invite(request, course_id):
             'user_id': str(user_id)
         })
         invite_link = f"{request.build_absolute_uri(reverse('enroll_course', args=[course_id]))}?token={token}"
-        if email:
+
+        if emails:
             try:
                 redirect_url = request.META.get('HTTP_ORIGIN')
-                EmailServices.send_email_to_client(email, course, request.user, redirect_url)
+                for email in emails:
+                    EmailServices.send_email_to_client(email, course, request.user, redirect_url)
+                    invitation = UserInvitation.objects.create(email=email, course=course, admin=request.user)
+                    invitation.save()
             except Exception as e:
                 print(e)
-            invitation = UserInvitation.objects.create(email=email, course=course, admin=request.user)
-            invitation.save()
             return JsonResponse({'status': 'success'})
         else:
             return JsonResponse({'status': 'success', 'invite_link': invite_link})

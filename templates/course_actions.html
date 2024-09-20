@@ -44,8 +44,9 @@ Admin - Course Actions
             <form class="row g-3 align-items-center">
                 <!-- Increase the email input field to take up more space -->
                 <div class="col-md-9">
+                    <!-- Update the input field to accept multiple emails -->
                     <input type="email" id="email-{{ course.id }}" class="form-control"
-                           placeholder="Enter email to invite" required>
+                           placeholder="Enter emails (comma-separated)" required multiple>
                 </div>
                 <!-- Adjust the button column with more precise alignment -->
                 <div class="col-md-3 d-flex justify-content-end">
@@ -62,6 +63,7 @@ Admin - Course Actions
                 </div>
             </div>
         </div>
+
 
         {% endfor %}
         {% else %}
@@ -123,35 +125,42 @@ Admin - Course Actions
             });
         });
 
-        document.querySelectorAll('.send-invite-button').forEach(function(button) {
-            button.addEventListener('click', function() {
-                const courseId = this.dataset.courseId;
-                const email = document.getElementById('email-' + courseId).value.trim();
-                if (email) {
-                    fetch(`/send-invite/${courseId}/`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': '{{ csrf_token }}',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ email: email })
-                    }).then(response => response.json())
-                      .then(data => {
-                          if (data.status === 'success') {
-                              alert('Invite sent successfully!');
-                              document.getElementById('invite-form-' + courseId).style.display = 'none';
-                          } else {
-                              alert('Error: ' + data.message);
-                          }
-                      }).catch(() => {
-                          alert('Failed to send invite.');
-                      });
-                } else {
-                    alert('Please enter a valid email.');
-                }
-            });
+
+    document.querySelectorAll('.send-invite-button').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const courseId = this.dataset.courseId;
+            const emailsInput = document.getElementById('email-' + courseId).value.trim();
+
+            if (emailsInput) {
+                // Split the input by commas and remove any extra spaces
+                const emails = emailsInput.split(',').map(email => email.trim());
+
+                // Send the array of emails to the backend
+                fetch(`/send-invite/${courseId}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: emails })  // Pass the list of emails
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.status === 'success') {
+                          alert('Invite(s) sent successfully!');
+                          document.getElementById('invite-form-' + courseId).style.display = 'none';
+                      } else {
+                          alert('Error: ' + data.message);
+                      }
+                  }).catch(() => {
+                      alert('Failed to send invite.');
+                  });
+            } else {
+                alert('Please enter a valid email.');
+            }
         });
     });
+});
+
 
     function copyLink(courseId) {
         const inviteLinkInput = document.getElementById('invitation-link-' + courseId);
@@ -214,5 +223,6 @@ Admin - Course Actions
             margin-top: 10px;
             width: 100%;
         }
-    }</style>
+    }
+</style>
 {% endblock %}
