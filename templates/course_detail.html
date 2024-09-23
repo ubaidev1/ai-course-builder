@@ -321,16 +321,19 @@
     // Load quiz data from the Django template
     const quizData = {{ quiz_data|safe }};
     const courseId = "{{ course.id }}";
+    const userId = "{{ user.id }}"; // Removed extra brace
+
     let currentQuestionIndex = 0; // Keeps track of the current question index
 
-    // Retrieve score for the specific course from localStorage or initialize to 0
+    // Retrieve score for the specific course and user from localStorage or initialize to 0
     const scores = JSON.parse(localStorage.getItem('quizScores')) || {}; // Retrieve all scores from localStorage
-    let score = scores[courseId] || 0; // Get the score for the current course or initialize to 0
+    const key = `${userId}_${courseId}`; // Create a unique key using userId and courseId
+    let score = scores[key] || 0; // Get the score for the current user and course or initialize to 0
     let answeredIncorrectly = false; // Tracks if the current question was answered incorrectly
 
-    // Function to save the score for the current course in localStorage
+    // Function to save the score for the current course and user in localStorage
     function saveScore() {
-        scores[courseId] = score; // Update score for the current course
+        scores[key] = score; // Update score for the current user and course
         localStorage.setItem('quizScores', JSON.stringify(scores)); // Save the updated scores object in localStorage
     }
 

@@ -231,7 +231,7 @@ def result_view(request):
 def send_invite(request, course_id):
     if request.method == 'POST':
         data = json.loads(request.body)
-        emails = data.get('email')  # Expecting a list of emails now
+        emails = data.get('email')
         course = get_object_or_404(Course, id=course_id)
         user_id = request.user.id
         token = signing.dumps({

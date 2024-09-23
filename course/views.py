@@ -48,7 +48,8 @@ def home_view(request, course_id=None):
     return render(request, 'home.html', {
         'course_progress': course_progress,
         'progress': progress,
-        'quiz_scores': quiz_score
+        'quiz_scores': quiz_score,
+        'user': request.user,
     })
 
 
