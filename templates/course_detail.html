@@ -1,3 +1,4 @@
+@ -1,413 +0,0 @@
 {% extends 'base.html' %}
 
 {% block title %}
@@ -6,7 +7,8 @@
 
 {% block breadcrumbs %}
 <li class="breadcrumb-item"><a style="color: #495057; text-decoration:none" ; href="{% url 'home' %}">Courses</a></li>
-<li class="breadcrumb-item"><a style="color: #495057; text-decoration:none" href="{% url 'course_detail' course.id lesson.id %}">{{course.title}}
+<li class="breadcrumb-item"><a style="color: #495057; text-decoration:none"
+                               href="{% url 'course_detail' course.id lesson.id %}">{{course.title}}
 
 </a></li>
 
@@ -408,6 +410,5 @@
     // Load the first question initially
     loadQuestion();
 </script>
-
 
 {% endblock %}
