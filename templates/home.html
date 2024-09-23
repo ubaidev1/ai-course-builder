@@ -203,6 +203,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const retakeQuizButton = document.getElementById('retake-quiz');
+        const userId = "{{user.id}}"
         if (!retakeQuizButton) {
             console.error('Retake quiz button not found');
             return;
@@ -213,15 +214,16 @@
             if (!courseId) {
                 return;
             }
-            removeCourseFromLocalStorage(courseId);
+            removeCourseFromLocalStorage(userId, courseId);
             const redirectUrl = retakeQuizButton.getAttribute('href');
             window.location.href = redirectUrl;
         });
-        function removeCourseFromLocalStorage(courseId) {
+        function removeCourseFromLocalStorage(userId, courseId) {
             const quizScoresString = localStorage.getItem('quizScores');
             const quizScores = JSON.parse(quizScoresString) || {};
+            const key = `${userId}_${courseId}`;
             if (quizScores) {
-                delete quizScores[courseId];
+                delete quizScores[key];
                 localStorage.setItem('quizScores', JSON.stringify(quizScores));
             }
         }
