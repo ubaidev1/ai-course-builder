@@ -56,5 +56,6 @@ def create_course(user, data, course_name):
                                 )
 
         print("Course content saved successfully!")
+        return course
     except Exception as e:
         print(f"An error occurred: {e}")

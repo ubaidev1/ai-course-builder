@@ -106,8 +106,10 @@ def dashboard(request):
             pdf_file_path = fs.path(filename)
             json_data = get_ai_course_details('config.json', pdf_file_path)
             data = json.loads(json_data)
-            create_course(request.user, data, course_name)
+            course = create_course(request.user, data, course_name)
             os.remove(pdf_file_path)
+            return redirect('edit_course', course_id=course.id)
+
         courses = Course.objects.all()
         return render(request, 'dashboard.html', {'courses': courses})
 
