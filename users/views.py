@@ -20,7 +20,7 @@ from django.utils.http import urlsafe_base64_encode
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
 from services import EmailServices
-from users.models import User
+from users.models import User, CustomizationSettings
 from users.models.invitations import UserInvitation
 
 
@@ -93,6 +93,21 @@ def logout_view(request):
 
 
 @login_required
+def customize_color(request):
+    settings, created = CustomizationSettings.objects.get_or_create(admin=request.user)
+
+    if request.method == 'POST':
+        settings.navbar_color = request.POST.get('navbar_color')
+        settings.heading_color = request.POST.get('heading_color')
+        settings.button_color = request.POST.get('button_color')
+        settings.background_color = request.POST.get('background_color')
+        settings.points_color = request.POST.get('points_color')
+        settings.save()
+        return redirect('customize_color')
+    return render(request, 'customize.html', {'settings': settings})
+
+
+@login_required
 def dashboard(request):
     if not request.user.is_admin:
         messages.error(request, 'You do not have permission to access this page.')
@@ -157,7 +172,7 @@ def course_actions(request):
         messages.error(request, 'You do not have permission to access this page.')
         return redirect('home')
     context = {
-        'courses': Course.objects.filter(created_by=request.user, is_archived=False)
+        'courses': Course.objects.filter(created_by=request.user, is_archived=False),
     }
     return render(request, 'course_actions.html', context)
 
