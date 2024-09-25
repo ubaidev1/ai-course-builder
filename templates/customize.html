@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customize Settings</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .sidebar {
+            background-color: #343a40;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            position: fixed;
+            width: 250px;
+            overflow-y: auto;
+        }
+        .sidebar a {
+            color: white;
+        }
+        .sidebar a:hover {
+            text-decoration: none;
+            color: #f8f9fa;
+        }
+        .content {
+            margin-left: 260px; /* Sidebar width + padding */
+            padding: 20px;
+        }
+        h2 {
+            margin-bottom: 30px;
+        }
+        .color-picker {
+            margin-bottom: 20px;
+        }
+        .color-preview {
+            width: 50px;
+            height: 25px;
+            border: 1px solid #ccc;
+            display: inline-block;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .save-button {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <h4>Customization</h4>
+    <ul class="list-unstyled">
+        <li><a href="#" class="btn btn-link"><i class="fas fa-paint-brush"></i> Button Colors</a></li>
+        <li><a href="#" class="btn btn-link"><i class="fas fa-paint-brush"></i> Points Colors</a></li>
+        <li><a href="#" class="btn btn-link"><i class="fas fa-paint-brush"></i> Backgrounds</a></li>
+    </ul>
+</div>
+
+<div class="content">
+    <h2>Customize Your Site</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="color-picker">
+            <label for="heading_color">Navbar Color:</label>
+            <input type="color" id="navbar_color" name="navbar_color" value="{{ settings.navbar_color }}">
+            <div class="color-preview" style="background-color: {{ settings.navbar_color }};"></div>
+        </div>
+        <div class="color-picker">
+            <label for="heading_color">Heading Color:</label>
+            <input type="color" id="heading_color" name="heading_color" value="{{ settings.heading_color }}">
+            <div class="color-preview" style="background-color: {{ settings.heading_color }};"></div>
+        </div>
+        <div class="color-picker">
+            <label for="button_color">Button Color:</label>
+            <input type="color" id="button_color" name="button_color" value="{{ settings.button_color }}">
+            <div class="color-preview" style="background-color: {{ settings.button_color }};"></div>
+        </div>
+        <div class="color-picker">
+            <label for="background_color">Background Color:</label>
+            <input type="color" id="background_color" name="background_color" value="{{ settings.background_color }}">
+            <div class="color-preview" style="background-color: {{ settings.background_color }};"></div>
+        </div>
+        <div class="color-picker">
+            <label for="background_color">Points Color:</label>
+            <input type="color" id="points_color" name="points_color" value="{{ settings.points_color }}">
+            <div class="color-preview" style="background-color: {{ settings.points_color }};"></div>
+        </div>
+        <button type="submit" class="btn btn-primary save-button">Save Changes</button>
+    </form>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
