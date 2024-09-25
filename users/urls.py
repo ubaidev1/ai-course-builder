@@ -14,6 +14,7 @@ urlpatterns = [
     path('send-invite/<uuid:course_id>/', send_invite, name='send_invite'),
     path('enroll_course/<uuid:course_id>/', enroll_course, name='enroll_course'),
     path('extend_course/<uuid:course_id>/', extend_course, name='extend_course'),
+    path('customize/', customize_color, name='customize_color'),
     path('', signup, name='signup'),
     path('admin_signup', admin_signup, name='admin_signup'),
     path('login/', login_view, name='login'),
