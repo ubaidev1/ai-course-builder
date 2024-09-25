@@ -12,8 +12,10 @@
             font-family: 'Roboto', sans-serif;
             background-color: #f8f9fa;
         }
+         .sidebar {
+         background-color: {% if request.customization_settings %}{{ request.customization_settings.background_color }}{% else %}white{% endif %};
+        }
         .sidebar {
-            background-color: #fff;
             color: #333;
             padding: 20px;
             overflow-y: auto;

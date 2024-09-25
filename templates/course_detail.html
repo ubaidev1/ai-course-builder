@@ -15,8 +15,9 @@
 
 
 {% block sidebar %}
-<button class="btn btn-primary d-md-none mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarCollapse" aria-expanded="false" aria-controls="sidebarCollapse">
-        <i class="bi bi-list"></i>
+<button class="btn btn-primary d-md-none mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarCollapse"
+        aria-expanded="false" aria-controls="sidebarCollapse">
+    <i class="bi bi-list"></i>
 </button>
 
 
@@ -61,7 +62,6 @@
 {% endblock %}
 
 
-
 {% block content %}
 <div class="d-flex justify-content-center">
     <div class="card mt-5" id="flip-card" style="width: 80%; perspective: 1000px;">
@@ -76,7 +76,7 @@
 
                     {% if lesson.quizzes.exists %}
                     <div class="d-flex justify-content-end mt-4">
-                        <button id="next-button" class="btn btn-primary btn-lg">Next</button>
+                        <button id="next-button" class="btn btn-lg">Next</button>
                     </div>
                     {% endif %}
                 </div>
@@ -97,7 +97,7 @@
                           action="{% url 'submit_quiz_score' course.id lesson.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="final_score" id="final_score" value="0">
-                        <button type="submit" class="submit-score" id="submit-button">Next</button>
+                        <button type="submit" class="btn submit-score" id="submit-button">Next</button>
                     </form>
                     {% endif %}
                 </div>
@@ -107,7 +107,15 @@
 </div>
 
 <style>
-  /* Sidebar animation for small screens */
+    .score {
+         background-color: {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
+         color: white;
+        }
+    .btn {
+        background-color: {% if request.customization_settings %}{{ request.customization_settings.button_color }}{% else %}#007bff{% endif %};
+        color: white;
+    }
+
 @media (max-width: 767.98px) {
     #sidebarCollapse {
         position: fixed;
@@ -193,7 +201,6 @@
         position: relative;
         top: -115px !important;
         left: 780px !important;
-        background-color: #4F46E5 !important;
         color: #ffffff;
         width: 110px !important;
         height: 40px;

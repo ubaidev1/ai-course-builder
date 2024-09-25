@@ -11,7 +11,7 @@ Admin - Course Actions
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
         <h2 class="mb-3 mb-md-0">Courses</h2>
         <div class="d-flex flex-column flex-md-row">
-            <a href="{% url 'dashboard' %}" class="btn btn-primary">Create a Course</a>
+            <a href="{% url 'dashboard' %}" class="btn">Create a Course</a>
         </div>
     </div>
 
@@ -29,12 +29,12 @@ Admin - Course Actions
                 </div>
 
                 <!-- Invite button -->
-                <button class="btn btn-outline-primary invite-button ms-2 mb-2 mb-md-0" data-course-id="{{ course.id }}">Invite</button>
-                <a href="{% url 'edit_course' course.id %}" class="btn btn-outline-warning ms-2 mb-2 mb-md-0">Edit</a>
-                <button class="btn btn-outline-danger ms-2 mb-2 mb-md-0 delete-button" data-course-id="{{ course.id }}"
+                <button class="btn invite-button ms-2 mb-2 mb-md-0" data-course-id="{{ course.id }}">Invite</button>
+                <a href="{% url 'edit_course' course.id %}" class="btn ms-2 mb-2 mb-md-0">Edit</a>
+                <button class="btn ms-2 mb-2 mb-md-0" data-course-id="{{ course.id }}"
                         data-course-title="{{ course.title }}">Delete
                 </button>
-                <a href="{% url 'extend_course' course.id %}" class="btn btn-outline-success ms-2 mb-2 mb-md-0">Extend</a>
+                <a href="{% url 'extend_course' course.id %}" class="btn ms-2 mb-2 mb-md-0">Extend</a>
             </div>
         </div>
 
@@ -67,8 +67,6 @@ Admin - Course Actions
         {% endif %}
     </div>
 </div>
-
-
 
 
 <script>
@@ -198,38 +196,34 @@ Admin - Course Actions
 
 <!-- Mobile responsiveness styles -->
 <style>
-
+    .btn {
+        background-color: {% if request.customization_settings %}{{ request.customization_settings.button_color }}{% else %}#007bff{% endif %};
+        color: white;
+    }
     @media (max-width: 768px) {
-        /* Stack the course title and buttons vertically for smaller screens */
         .list-group-item {
-            flex-direction: column; /* Stack items on mobile */
-            align-items: flex-start; /* Align items to start */
+            flex-direction: column;
+            align-items: flex-start;
         }
         .list-group-item .d-flex {
-            flex-direction: column; /* Stack buttons on mobile */
-            width: 100%; /* Full width for buttons */
+            flex-direction: column;
+            width: 100%;
         }
         .invite-form {
-            width: 100%; /* Full width for the invite form */
+            width: 100%;
         }
 
-        /* Make buttons take up full width and stack them vertically */
         .list-group-item .btn {
             width: 100%;
             margin-top: 10px;
         }
 
-        /* Ensure the publish switch aligns properly on mobile */
         .form-switch {
             margin-top: 10px;
         }
-
-        /* Make the invite form input field and button stack and take up full width */
         .invite-form .form-control, .invite-form .btn {
             width: 100%;
         }
-
-        /* Adjust the alignment of the copy button and input field */
         .invite-form .d-flex {
             flex-direction: column;
         }
@@ -237,22 +231,15 @@ Admin - Course Actions
         .invite-form .form-control {
             margin-bottom: 10px;
         }
-
-        /* Full width for copy button on smaller screens */
         .invite-form .btn-outline-secondary {
             width: 100%;
         }
-
-        /* Make the heading responsive */
         h2 {
             font-size: 1.5rem;
         }
-
-        /* Adjust buttons container to stack on mobile */
         .d-flex.flex-md-row {
             flex-direction: column;
         }
-
         .d-flex.flex-md-row a {
             margin-top: 10px;
             width: 100%;
