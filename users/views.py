@@ -4,6 +4,7 @@ import os
 
 from antropic_api.anthropic_response import get_ai_course_details
 from course.models import Course, Question, QuizScore, CourseEnrollment
+from course.models import Lesson, Quiz, Question, Option
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -281,18 +282,46 @@ def enroll_course(request, course_id):
 @login_required
 def extend_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
+
     if request.method == 'POST':
-        pdf_file = request.FILES.get('pdf_file')
-        if not pdf_file:
-            messages.error(request, "Please upload a PDF file.")
+        # Handle PDF Upload for Extending Course
+        if 'pdf_file' in request.FILES:
+            pdf_file = request.FILES.get('pdf_file')
+            if not pdf_file:
+                messages.error(request, "Please upload a PDF file.")
+                return redirect('extend_course', course_id=course.id)
+
+            fs = FileSystemStorage(location='/tmp')
+            filename = fs.save(pdf_file.name, pdf_file)
+            pdf_file_path = fs.path(filename)
+            json_data = get_ai_course_details('config.json', pdf_file_path)
+            data = json.loads(json_data)
+            extend_existing_course(data, course)
+            messages.success(request, f"Course '{course.title}' has been extended with new content.")
+            os.remove(pdf_file_path)
+            return redirect('course_actions')
+
+        elif 'lesson_title' in request.POST:
+            module_id = request.POST.get('module_id')
+            lesson_title = request.POST.get('lesson_title')
+            lesson_content = request.POST.get('lesson_content')
+            quiz_title = request.POST.get('quiz_title')
+            questions = request.POST.getlist('questions[]')
+            correct_answers = request.POST.getlist('correct_answers[]')
+
+            module = get_object_or_404(course.modules.all(), id=module_id)
+            lesson = Lesson.objects.create(title=lesson_title, content=lesson_content, module=module)
+            quiz = Quiz.objects.create(title=quiz_title, lesson=lesson)
+            for i, question_text in enumerate(questions):
+                correct_answer = correct_answers[i]
+                options = request.POST.getlist(f'options_question{i + 1}[]')
+                question = Question.objects.create(
+                    quiz=quiz,
+                    question_text=question_text,
+                    correct_answer=correct_answer
+                )
+                for option in options:
+                    Option.objects.create(question=question, option_text=option)
+            messages.success(request, f"Lesson '{lesson_title}' and its quiz have been successfully added.")
             return redirect('extend_course', course_id=course.id)
-        fs = FileSystemStorage(location='/tmp')
-        filename = fs.save(pdf_file.name, pdf_file)
-        pdf_file_path = fs.path(filename)
-        json_data = get_ai_course_details('config.json', pdf_file_path)
-        data = json.loads(json_data)
-        extend_existing_course(data, course)
-        messages.success(request, f"Course '{course.title}' has been extended with new content.")
-        os.remove(pdf_file_path)
-        return redirect('course_actions')
     return render(request, 'extend_course.html', {'course': course})

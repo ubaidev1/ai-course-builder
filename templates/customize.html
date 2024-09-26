@@ -10,7 +10,7 @@ Admin - Customize
         background-color: #f8f9fa;
     }
     .sidebar {
-        background-color: #343a40;
+        background-color: {% if request.customization_settings %}{{ request.customization_settings.background_color }}{% else %}white{% endif %};
         margin-top: -40px;
         margin-left:-20px;
         color: white;
@@ -24,21 +24,21 @@ Admin - Customize
     }
     .sidebar a {
         color: white;
-        display: flex; /* Aligns items in a row */
-        align-items: center; /* Vertically centers the items */
-        border-radius: 4px; /* Rounded corners for links */
-        transition: background-color 0.3s; /* Smooth transition */
+        display: flex;
+        align-items: center;
+        border-radius: 4px;
+        transition: background-color 0.3s;
     }
     .sidebar a:hover {
-        background-color: #495057; /* Background color on hover */
+        background-color: #495057;
         text-decoration: none;
         color: #f8f9fa;
     }
     .sidebar a i {
-        margin-right: 10px; /* Space between icon and text */
+        margin-right: 10px;
     }
     .content {
-        margin-left: 260px; /* Sidebar width + padding */
+        margin-left: 260px;
     }
     h2 {
         margin-bottom: 30px;
@@ -66,15 +66,15 @@ Admin - Customize
     <h4>Customization</h4>
     <ul class="list-unstyled">
         <li><a href="#" class="btn btn-link" onclick="showSection('navbar-section')"><i class="fas fa-paint-brush"></i>
-            Navbar Colors</a></li>
+            Navbar Color</a></li>
         <li><a href="#" class="btn btn-link" onclick="showSection('heading-section')"><i class="fas fa-paint-brush"></i>
-            Heading Colors</a></li>
+            Heading Color</a></li>
         <li><a href="#" class="btn btn-link" onclick="showSection('button-section')"><i class="fas fa-paint-brush"></i>
-            Button Colors</a></li>
+            Button Color</a></li>
         <li><a href="#" class="btn btn-link" onclick="showSection('background-section')"><i
-                class="fas fa-paint-brush"></i> Background Colors</a></li>
+                class="fas fa-paint-brush"></i> Sidebar Color</a></li>
         <li><a href="#" class="btn btn-link" onclick="showSection('points-section')"><i class="fas fa-paint-brush"></i>
-            Points Colors</a></li>
+            Points Color</a></li>
     </ul>
 </div>
 
@@ -139,19 +139,13 @@ Admin - Customize
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-    // Function to show the correct section based on sidebar link click
     function showSection(sectionId) {
-        // Hide all sections first
         var sections = document.querySelectorAll('.customization-section');
         sections.forEach(function(section) {
             section.style.display = 'none';
         });
-
-        // Show the selected section
         document.getElementById(sectionId).style.display = 'block';
     }
-
-    // Initially show the Navbar section or any section by default
     showSection('navbar-section');
 </script>
 
