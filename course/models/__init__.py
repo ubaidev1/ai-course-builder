@@ -6,3 +6,4 @@ from .option import Option
 from .question import Question
 from .quiz import Quiz
 from .quiz_score import QuizScore
+from .video import Video
