@@ -76,9 +76,9 @@
     {% include 'navbar.html' %}
     {% endif %}
 
-<div class="container-fluid">
+<div class="container-fluid">  
     <div class="row">
-        {% if request.path != '/' and request.path != '/home/' and request.path != '/login/' and request.path != '/result/' and request.path != '/admin_signup' and request.path != '/course_actions/' and request.path != '/invite-users/' %}
+        {% if request.path != '/' and request.path != '/home/' and request.path != '/login/' and request.path != '/result/' and request.path != '/admin_signup' and request.path != '/course_actions/' and request.path != '/invite-users/' and request.path != '/customize/' %}
         <!-- Sidebar -->
         <nav class="col-md-3 sidebar">
             {% block sidebar %}
