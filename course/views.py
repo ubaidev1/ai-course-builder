@@ -5,9 +5,10 @@ from django.core import signing
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.views.decorators.http import require_POST
 from users.models import User, UserInvitation
 
-from .models import Course, Lesson, QuizScore, Quiz, CourseEnrollment
+from .models import Course, Lesson, QuizScore, Quiz, CourseEnrollment, Video
 
 
 def home_view(request, course_id=None):
@@ -132,6 +133,19 @@ def get_next_lesson(course, user):
     first_quiz = unattempted_quizzes.order_by('created_at').first()
     if first_quiz:
         return first_quiz.lesson.id
+
+
+def add_video(request):
+    video_link = request.POST.get('video_link')
+    lesson_id = request.POST.get('lesson_id')
+    if video_link and lesson_id:
+        lesson = get_object_or_404(Lesson, id=lesson_id)
+        video, created = Video.objects.get_or_create(lesson=lesson, defaults={'video_link': video_link})
+        if not created:
+            video.video_link = video_link
+            video.save()
+        return JsonResponse({'status': 'success', 'video_link': video.video_link}, status=201)
+    return JsonResponse({'status': 'error', 'message': 'Missing data'}, status=400)
 
 
 def get_course_progress(user):
