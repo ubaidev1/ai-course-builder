@@ -146,6 +146,9 @@
 </div>
 
 <style>
+    body {
+    overflow: hidden; /* Hides the main scrollbar */
+}
     .score {
          background-color: {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
          color: white;
@@ -168,6 +171,7 @@
         transition: left 0.3s ease-in-out; /* Animation for the sidebar */
         z-index: 1050;
     }
+    
 
     .sidebar{
         min-height: unset !important;
@@ -185,10 +189,26 @@
     #sidebarCollapse {
         position: relative;
         left: 0;
-        height: auto;
-        transition: none; /* No animation for larger screens */
+        height: 100vh;
+        transition: none; 
+        overflow-y: auto;
+        margin-right: -15px;
+        
     }
 }
+#sidebarCollapse::-webkit-scrollbar {
+        width: 7px; 
+        background-color: transparent;
+    }
+
+    #sidebarCollapse::-webkit-scrollbar-thumb {
+        background-color: #888; 
+        border-radius: 4px; 
+    }
+
+    #sidebarCollapse::-webkit-scrollbar-thumb:hover {
+        background-color: #555; 
+    }
 
     .flip-card-inner {
         position: relative;
