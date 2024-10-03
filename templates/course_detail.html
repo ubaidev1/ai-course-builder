@@ -147,7 +147,7 @@
 
 <style>
     body {
-    overflow: hidden; /* Hides the main scrollbar */
+        overflow: hidden;
 }
     .score {
          background-color: {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
@@ -162,13 +162,13 @@
     #sidebarCollapse {
         position: fixed;
         top: 10;
-        left: -250px; /* Initially hide the sidebar */
+        left: -250px; 
         width: 250px;
         height: 100vh;
         background-color: #f8f9fa;
         padding: 1rem;
         overflow-y: auto;
-        transition: left 0.3s ease-in-out; /* Animation for the sidebar */
+        transition: left 0.3s ease-in-out; 
         z-index: 1050;
     }
     
@@ -178,13 +178,11 @@
 
     }
 
-    /* When the sidebar is shown, slide it in from the left */
     #sidebarCollapse.show {
         left: 0;
     }
 }
 
-/* For larger screens, keep the sidebar static without animation */
 @media (min-width: 768px) {
     #sidebarCollapse {
         position: relative;
@@ -352,9 +350,9 @@
         color: #444;
     }
     .sidebar .nav-item .nav-link:hover {
-    color: white !important; /* Change text color to white */
-    background-color: #4F46E5 !important; /* Change background color to blue */
-    border-radius: 5px !important; /* Rounded corners for sidebar links */
+    color: white !important; 
+    background-color: #4F46E5 !important; 
+    border-radius: 5px !important; 
 }
 
     .submit-score {
