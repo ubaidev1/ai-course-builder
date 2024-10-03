@@ -16,9 +16,10 @@ Admin - Customize
         color: white;
         height: 100vh;
         position: fixed;
-        width: 250px;
+        width: 290px;
         overflow-y: auto;
     }
+    
     .sidebar h4 {
         margin-bottom: 20px;
     }
@@ -30,7 +31,7 @@ Admin - Customize
         transition: background-color 0.3s;
     }
     .sidebar a:hover {
-        background-color: #495057;
+        background-color: #007bff;
         text-decoration: none;
         color: #f8f9fa;
     }
@@ -38,7 +39,7 @@ Admin - Customize
         margin-right: 10px;
     }
     .content {
-        margin-left: 260px;
+        margin-left: 300px;
     }
     h2 {
         margin-bottom: 30px;
@@ -60,10 +61,18 @@ Admin - Customize
     .customization-section {
         display: none;
     }
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 220px; 
+        }
+        .content {
+            margin-left: 240px; 
+        }
+    }
 </style>
 
 <div class="sidebar">
-    <h4>Customization</h4>
+    <h4 style="margin-left: 10px;">Customization</h4>
     <ul class="list-unstyled">
         <li><a href="#" class="btn btn-link" onclick="showSection('navbar-section')"><i class="fas fa-paint-brush"></i>
             Navbar Color</a></li>
