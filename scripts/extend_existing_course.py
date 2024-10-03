@@ -1,6 +1,5 @@
-from django.db import transaction
-
 from course.models import Module, Lesson, Quiz, Question, Option
+from django.db import transaction
 
 
 def extend_existing_course(data, course):
@@ -16,15 +15,18 @@ def extend_existing_course(data, course):
                     description=module_description,
                 )
 
+                lesson_position = 1
                 for lesson_data in module_data.get('module_lessons', []):
                     lesson_title = lesson_data.get('lesson_title')
-                    lesson_content = lesson_data.get('lesson_content')
+                    lesson_content = lesson_data.get('lesson_content'),
 
                     lesson = Lesson.objects.create(
                         module=module,
                         title=lesson_title,
                         content=lesson_content,
+                        position=lesson_position,
                     )
+                    lesson_position += 1
 
                     if 'quiz' in lesson_data:
                         quiz_title = f"Quiz for {lesson_title}"

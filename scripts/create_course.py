@@ -23,6 +23,8 @@ def create_course(user, data, course_name):
                     description=module_description,
                 )
 
+                lesson_position = 1
+
                 for lesson_data in module_data.get('module_lessons', []):
                     lesson_title = lesson_data.get('lesson_title')
                     lesson_content = lesson_data.get('lesson_content')
@@ -31,7 +33,10 @@ def create_course(user, data, course_name):
                         module=module,
                         title=lesson_title,
                         content=lesson_content,
+                        position=lesson_position,
                     )
+
+                    lesson_position += 1
 
                     if 'quiz' in lesson_data:
                         quiz_title = f"Quiz for {lesson_title}"

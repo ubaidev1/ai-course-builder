@@ -4,7 +4,7 @@ import os
 
 from antropic_api.anthropic_response import get_ai_course_details
 from course.models import Course, Question, QuizScore, CourseEnrollment
-from course.models import Lesson, Quiz, Question, Option
+from course.models import Lesson, Quiz, Question, Option, Module
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -18,6 +18,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.views.decorators.csrf import csrf_exempt
 from scripts.create_course import create_course
 from scripts.extend_existing_course import extend_existing_course
 from services import EmailServices
@@ -325,3 +326,148 @@ def extend_course(request, course_id):
             messages.success(request, f"Lesson '{lesson_title}' and its quiz have been successfully added.")
             return redirect('extend_course', course_id=course.id)
     return render(request, 'extend_course.html', {'course': course})
+
+
+def update_lesson(request, lesson_id):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            lesson = Lesson.objects.get(id=lesson_id)
+            lesson.title = data['title']
+            lesson.content = data['content']
+            lesson.save()
+            return JsonResponse({'success': True})
+        except Lesson.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Lesson not found.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+
+@csrf_exempt
+def update_title(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        item_type = data.get('type')
+        item_id = data.get('id')
+        new_title = data.get('title')
+
+        if item_type == 'module':
+            try:
+                module = Module.objects.get(id=item_id)
+                module.title = new_title
+                module.save()
+                return JsonResponse({'success': True})
+            except Module.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Module not found'})
+
+        elif item_type == 'lesson':
+            try:
+                lesson = Lesson.objects.get(id=item_id)
+                lesson.title = new_title
+                lesson.save()
+                return JsonResponse({'success': True})
+            except Lesson.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Lesson not found'})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+
+@csrf_exempt  # Only use this if CSRF tokens are not provided in the JavaScript
+def update_quiz(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            field = data.get('field')
+            new_value = data.get('value')
+
+            # Determine if it's a question or an option
+            if 'question' in field:
+                # Update the question text
+                question_id = field.split('-')[1]  # Get question ID from field name (if needed)
+                quiz = Quiz.objects.get(id=question_id)  # Fetch the relevant quiz
+                quiz.question = new_value
+                quiz.save()
+
+            elif 'option' in field:
+                # Update the option text
+                option_id = field.split('-')[1]  # Get option ID from field name (if needed)
+                option = QuizOption.objects.get(id=option_id)  # Fetch the relevant option
+                option.text = new_value
+                option.save()
+
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+
+@csrf_exempt
+def save_quiz_data(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            field_type = data.get('field_type')
+            print(field_type, "FIELD TYPE")
+            updated_value = data.get('updated_value')
+            question_index = data.get('question_index')
+            lesson_id = data.get('lesson_id')
+
+            # Find the quiz associated with the lesson
+            lesson = Lesson.objects.get(id=lesson_id)
+            quiz = Quiz.objects.get(lesson=lesson)
+            questions = list(quiz.questions.all())
+            if question_index is None:
+                question_index = 0
+
+            if question_index < len(questions):
+                question = questions[question_index]
+                if field_type == 'question':
+                    question.question_text = updated_value
+                    question.save()
+                elif 'option_' in field_type:
+                    option_index = int(field_type.split('_')[1])
+                    options = question.options.all()
+                    if option_index < len(options):
+                        option = options[option_index]
+                        option.option_text = updated_value
+                        option.save()
+                    else:
+                        return JsonResponse({'status': 'error', 'message': 'Invalid option index'})
+
+                return JsonResponse({'status': 'success'})
+
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Invalid question index'})
+
+        except Lesson.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Lesson not found'})
+        except Quiz.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Quiz not found'})
+        except Question.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Question not found'})
+        except Option.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Option not found'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@csrf_exempt
+def save_lesson_order(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            module_id = data.get('module_id')
+            lesson_order = data.get('lesson_order')
+            module = Module.objects.get(id=module_id)
+            for lesson_data in lesson_order:
+                lesson_id = lesson_data['id'].replace('lesson-', '')
+                lesson = Lesson.objects.get(id=lesson_id, module=module)
+                lesson.position = lesson_data['position']
+                lesson.save()
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'})

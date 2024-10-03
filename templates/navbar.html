@@ -48,7 +48,7 @@
 <style>
 
     .navbar {
-        background-color: {% if request.customization_settings %}{{ request.customization_settings.navbar_color }}{% else %}black{% endif %};
+        background-color: {% if request.customization_settings %} {{ request.customization_settings.navbar_color }} {% else %} yellow {% endif %};
         color: white;
     }
 

@@ -11,14 +11,14 @@ class CustomizationMiddleware:
             if request.user.is_admin:
                 customization_settings = CustomizationSettings.objects.filter(admin=request.user).first()
                 request.customization_settings = customization_settings
-            enrollment = CourseEnrollment.objects.filter(user=request.user).first()
-            if enrollment:
-                customization_settings = CustomizationSettings.objects.filter(admin=enrollment.invited_by).first()
-                request.customization_settings = customization_settings
-            else:
-                request.customization_settings = None
+            if not request.user.is_admin or not request.customization_settings:
+                enrollment = CourseEnrollment.objects.filter(user=request.user).first()
+                if enrollment:
+                    customization_settings = CustomizationSettings.objects.filter(admin=enrollment.invited_by).first()
+                    request.customization_settings = customization_settings
+                else:
+                    request.customization_settings = None
         else:
             request.customization_settings = None
-
         response = self.get_response(request)
         return response

@@ -1,51 +1,67 @@
 {% extends 'base.html' %}
-
 {% block title %}
 Admin - Customize
 {% endblock %}
-
 {% block content %}
 <style>
     body {
         background-color: #f8f9fa;
+        font-family: 'Arial', sans-serif;
+        color: #343a40;
     }
+
     .sidebar {
-        background-color: {% if request.customization_settings %}{{ request.customization_settings.background_color }}{% else %}white{% endif %};
+        background-color: {% if request.customization_settings %}{{ request.customization_settings.background_color }}{% else %}#007bff{% endif %};
         margin-top: -40px;
-        margin-left:-20px;
+        margin-left: -20px;
         color: white;
         height: 100vh;
         position: fixed;
-        width: 290px;
+        width: 250px;
         overflow-y: auto;
+        transition: transform 0.3s ease;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
-    
+    .sidebar.hidden {
+        transform: translateX(-100%);
+    }
     .sidebar h4 {
-        margin-bottom: 20px;
+        margin: 20px;
+        font-size: 1.5rem;
+        font-weight: bold;
     }
     .sidebar a {
         color: white;
         display: flex;
         align-items: center;
+        padding: 10px 20px;
         border-radius: 4px;
         transition: background-color 0.3s;
     }
     .sidebar a:hover {
-        background-color: #007bff;
+        background-color: #0056b3;
         text-decoration: none;
-        color: #f8f9fa;
     }
     .sidebar a i {
         margin-right: 10px;
     }
     .content {
-        margin-left: 300px;
+        margin-left: 260px; /* Space for the sidebar */
+        padding: 20px;
+        transition: margin-left 0.3s ease;
     }
     h2 {
         margin-bottom: 30px;
+        font-size: 2rem;
+        font-weight: bold;
     }
     .color-picker {
         margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .color-picker label {
+        flex: 0 0 150px; /* Fixed width for labels */
     }
     .color-preview {
         width: 50px;
@@ -54,42 +70,53 @@ Admin - Customize
         display: inline-block;
         margin-left: 10px;
         vertical-align: middle;
+        border-radius: 4px;
     }
     .save-button {
         margin-top: 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .save-button:hover {
+        background-color: #0056b3;
     }
     .customization-section {
         display: none;
     }
     @media (max-width: 768px) {
         .sidebar {
-            width: 220px; 
+            transform: translateX(-100%);
+        }
+        .sidebar.hidden {
+            transform: translateX(0);
         }
         .content {
-            margin-left: 240px; 
+            margin-left: 0; /* Remove margin when sidebar is hidden */
         }
     }
 </style>
-
-<div class="sidebar">
-    <h4 style="margin-left: 10px;">Customization</h4>
+<button class="btn btn-primary d-md-none mb-5" style="margin-top: -15px;" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarCollapse"
+        aria-expanded="false" aria-controls="sidebarCollapse" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+</button>
+<div class="sidebar" id="sidebarCollapse">
+    <h4>Customization</h4>
     <ul class="list-unstyled">
-        <li><a href="#" class="btn btn-link" onclick="showSection('navbar-section')"><i class="fas fa-paint-brush"></i>
-            Navbar Color</a></li>
-        <li><a href="#" class="btn btn-link" onclick="showSection('heading-section')"><i class="fas fa-paint-brush"></i>
-            Heading Color</a></li>
-        <li><a href="#" class="btn btn-link" onclick="showSection('button-section')"><i class="fas fa-paint-brush"></i>
-            Button Color</a></li>
-        <li><a href="#" class="btn btn-link" onclick="showSection('background-section')"><i
-                class="fas fa-paint-brush"></i> Sidebar Color</a></li>
-        <li><a href="#" class="btn btn-link" onclick="showSection('points-section')"><i class="fas fa-paint-brush"></i>
-            Points Color</a></li>
+        <li><a href="#" class="btn btn-link" onclick="showSection('navbar-section')"><i class="fas fa-paint-brush"></i>Navbar Color</a></li>
+        <li><a href="#" class="btn btn-link" onclick="showSection('heading-section')"><i class="fas fa-paint-brush"></i>Headings Color</a></li>
+        <li><a href="#" class="btn btn-link" onclick="showSection('button-section')"><i class="fas fa-paint-brush"></i>Buttons Color</a></li>
+        <li><a href="#" class="btn btn-link" onclick="showSection('background-section')"><i class="fas fa-paint-brush"></i>Sidebar Color</a></li>
+        <li><a href="#" class="btn btn-link" onclick="showSection('points-section')"><i class="fas fa-paint-brush"></i>Points Button Color</a></li>
     </ul>
 </div>
-
 <div class="content">
     <h2>Customize Your Site</h2>
-
     <form method="POST">
         {% csrf_token %}
         <!-- Navbar Color Section -->
@@ -100,53 +127,45 @@ Admin - Customize
                 <div class="color-preview" style="background-color: {{ settings.navbar_color }};"></div>
             </div>
         </div>
-
         <!-- Heading Color Section -->
         <div id="heading-section" class="customization-section">
             <div class="color-picker">
-                <label for="heading_color">Heading Color:</label>
+                <label for="heading_color">Headings Color:</label>
                 <input type="color" id="heading_color" name="heading_color" value="{{ settings.heading_color }}">
                 <div class="color-preview" style="background-color: {{ settings.heading_color }};"></div>
             </div>
         </div>
-
         <!-- Button Color Section -->
         <div id="button-section" class="customization-section">
             <div class="color-picker">
-                <label for="button_color">Button Color:</label>
+                <label for="button_color">Buttons Color:</label>
                 <input type="color" id="button_color" name="button_color" value="{{ settings.button_color }}">
                 <div class="color-preview" style="background-color: {{ settings.button_color }};"></div>
             </div>
         </div>
-
         <!-- Background Color Section -->
         <div id="background-section" class="customization-section">
             <div class="color-picker">
-                <label for="background_color">Background Color:</label>
-                <input type="color" id="background_color" name="background_color"
-                       value="{{ settings.background_color }}">
+                <label for="background_color">Sidebar Color:</label>
+                <input type="color" id="background_color" name="background_color" value="{{ settings.background_color }}">
                 <div class="color-preview" style="background-color: {{ settings.background_color }};"></div>
             </div>
         </div>
-
         <!-- Points Color Section -->
         <div id="points-section" class="customization-section">
             <div class="color-picker">
-                <label for="points_color">Points Color:</label>
+                <label for="points_color">Points Button Color:</label>
                 <input type="color" id="points_color" name="points_color" value="{{ settings.points_color }}">
                 <div class="color-preview" style="background-color: {{ settings.points_color }};"></div>
             </div>
         </div>
-
         <button type="submit" class="btn btn-primary save-button">Save Changes</button>
     </form>
 </div>
-
 <!-- Bootstrap JS and dependencies -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 <script>
     function showSection(sectionId) {
         var sections = document.querySelectorAll('.customization-section');
@@ -155,7 +174,15 @@ Admin - Customize
         });
         document.getElementById(sectionId).style.display = 'block';
     }
-    showSection('navbar-section');
+    function toggleSidebar() {
+        var sidebar = document.getElementById('sidebarCollapse');
+        sidebar.classList.toggle('hidden');
+        var sections = document.querySelectorAll('.customization-section');
+        sections.forEach(function(section) {
+            section.style.display = 'none'; // Hide all sections when sidebar is toggled
+        });
+        showSection('navbar-section'); // Default section to show
+    }
+    showSection('navbar-section'); // Default section to show on load
 </script>
-
 {% endblock %}

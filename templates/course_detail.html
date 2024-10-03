@@ -15,7 +15,6 @@
 
 
 {% block sidebar %}
-
 <button class="btn btn-primary d-md-none mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarCollapse"
         aria-expanded="false" aria-controls="sidebarCollapse">
     <i class="bi bi-list"></i>
@@ -26,31 +25,52 @@
     <ul class="nav flex-column">
         {% for module in course.modules.all %}
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="collapse" href="#module-{{ module.id }}" role="button"
-               aria-expanded="false" aria-controls="module-{{ module.id }}">
-                <i class="bi bi-book"></i> {{ module.title }}
-            </a>
+            <!-- Module Title with Edit Icon -->
+            <div class="d-flex align-items-center">
+                <a class="nav-link me-auto" data-bs-toggle="collapse" href="#module-{{ module.id }}" role="button"
+                   aria-expanded="false" aria-controls="module-{{ module.id }}" style="flex-grow: 1;">
+                    <i class="bi bi-book"></i>
+                    <span id="module-title-{{ module.id }}">{{ module.title }}</span>
+                </a>
+                <a onclick="editBar('module', '{{ module.id }}')" id="edit-icon-{{ module.id }}">
+                    <i class="edit_icon bi bi-pencil"></i>
+                </a>
+            </div>
+
+            <input type="text" id="module-input-{{ module.id }}" class="form-control" style="display: none;"
+                   value="{{ module.title }}"/>
+
             <div class="collapse" id="module-{{ module.id }}">
-                <ul class="nav flex-column ms-3 bulleted-list-lessons">
-                    {% for lesson in module.lessons.all %}
-                    <li class="nav-item">
-                        {% if user.is_staff %}
-                        <a class="nav-link" href="{% url 'course_detail' course.id lesson.id %}">
-                            <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
-                        </a>
-                        {% else %}
-                        <span class="nav-link">
-                                <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
-                            </span>
-                        {% endif %}
-                    </li>
-                    {% empty %}
-                    <li class="nav-item">
-                        <span class="nav-link">No lessons available</span>
+                <ul class="nav flex-column ms-3 bulleted-list-lessons" id="sortable-lessons-{{ module.id }}">
+                    {% for lesson in module.lessons.all|dictsort:"position" %}
+                    <li class="nav-item lesson-item" id="lesson-{{ lesson.id }}">
+                        <div class=" align-items-center lesson-header">
+                            {% if user.is_staff %}
+                            <div class="d-flex">
+                                <a class="nav-link me-2" href="{% url 'course_detail' course.id lesson.id %}">
+                                    <i class="bi bi-file-earmark-text"></i>
+                                    <span id="lesson-title-{{ lesson.id }}">{{ lesson.title }}</span>
+                                </a>
+                                <a class="edit-btn" onclick="editBar('lesson', '{{ lesson.id }}')"
+                                   id="edit-icon-{{ lesson.id }}">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                            <input type="text" id="lesson-input-{{ lesson.id }}" class="form-control lesson-input"
+                                   style="display: none;" value="{{ lesson.title }}"/>
+
+                            {% else %}
+                            <span class="nav-link">
+                    <i class="bi bi-file-earmark-text"></i> {{ lesson.title }}
+                </span>
+
+                            {% endif %}
+                        </div>
                     </li>
                     {% endfor %}
                 </ul>
             </div>
+
         </li>
         {% empty %}
         <li class="nav-item">
@@ -59,6 +79,7 @@
         {% endfor %}
     </ul>
 </div>
+
 {% endblock %}
 
 
@@ -69,48 +90,68 @@
             <!-- Lesson Card Front -->
             <div class="card flip-card-front">
                 <div class="card-body">
-                    <h3 class="card-title text-center mb-4">{{ lesson.title }}</h3>
-                    <div id="add-video-button-container" class="mb-2 d-flex justify-content-end ">
-                        <!-- Show the "Add Video" button only if there is no video link -->
-                        {% if not lesson.video.video_link %}
-                        <a class="btn-sm me-3" onclick="showVideoForm()" style="cursor: pointer;">+ Add Video</a>
-                        {% endif %}
+                    <div class="d-flex align-items-center">
+                        <!-- Display the title as a span by default -->
+                        <span id="lesson-title-span" class="card-title text-center mb-4"
+                              style="font-size: 1.75rem; width: 100%; font-weight: bold;">{{ lesson.title }}</span>
+
+                        <!-- Hidden input field for editing -->
+                        <input type="text" id="lesson-title-input"
+                               class="form-control-plaintext card-title text-center mb-4"
+                               value="{{ lesson.title }}"
+                               style="font-size: 1.75rem; width: 100%; font-weight: bold; display: none;">
+
+                        <a class="btn-sm me-3" onclick="editTitleField()" title="Edit Title">
+                            <i class="bi bi-pencil" style="margin-top: 50px"></i>
+                        </a>
                     </div>
 
-                    <div id="video-link-card" class="card p-3 shadow-sm mb-4" >
+
+                    <div id="video-link-card" class="card p-3 shadow-sm mb-4">
                         <h6 class="card-title mb-3">Video Link:</h6>
                         <div id="video-container">
-                            <!-- Display the video link and icons if a video link exists -->
                             <div id="video-link-display" class="mb-3"
                                  style="display: {% if lesson.video.video_link %}flex{% else %}none{% endif %};">
-                                <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center w-100">
                                     <a id="video-link-text" href="{{ lesson.video.video_link }}" target="_blank"
-                                       class="text-primary">{{ lesson.video.video_link }}</a>
-                                    <div class="ms-5">
-                                        <a class="btn-sm btn-outline-secondary me-2" onclick="editVideo()"
+                                       class="text-primary text-truncate">{{ lesson.video.video_link }}</a>
+                                    <div class="ms-2 d-flex align-items-center">
+                                        <a class="me-3" onclick="editVideo()"
                                            title="Edit Video">
-                                            <i class="bi bi-pencil"></i> <!-- Edit Icon -->
+                                            <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a class="btn-sm btn-outline-danger" onclick="removeVideo()"
+                                        <a onclick="removeVideo()"
                                            title="Remove Video">
-                                            <i class="bi bi-trash"></i> <!-- Remove Icon -->
+                                            <i class="bi bi-trash"></i>
                                         </a>
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Form to add or edit the video link; this will show if no video exists -->
-                            <div id="add-video" class="input-group"
+                            <div id="add-video" class="input-group mb-3"
                                  style="display: {% if lesson.video.video_link %}none{% else %}flex{% endif %};">
                                 <input type="text" class="form-control" id="video-link-input"
-                                       placeholder="Enter video link">
-                                <button class="btn" onclick="addVideo()">Add</button>
+                                       placeholder="Enter video link"> </br>
+                                <button class="btn btn-primary btn-sm" onclick="addVideo()">Add</button>
                             </div>
+
+
                         </div>
                     </div>
 
-                    <div class="lesson-content">
-                        <p class="card-text">{{ lesson.content }}</p>
+
+                    <div class="lesson-content d-flex">
+                        <textarea class="form-control-plaintext" id="lesson-content" rows="5"
+                                  disabled>{{ lesson.content }}</textarea>
+                        <a class="btn-sm me-3" onclick="editField('lesson-content')" title="Edit Content">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                    </div>
+
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button id="save-button" class="btn btn-primary" style="display: none;"
+                                onclick="saveLesson('{{ lesson.id }}')">Save
+                        </button>
                     </div>
 
                     {% if lesson.quizzes.exists %}
@@ -126,14 +167,23 @@
                 <div class="quiz-container">
                     <div class="header">Quiz</div>
                     <div class="score">Points: <span id="score">&nbsp;0</span></div>
-                    <div class="question" id="question"></div>
-                    <div class="options" id="options-container"></div>
-                    <div class="result" id="result"></div>
 
-                    <!-- Hidden form to submit the score -->
+                    <div class="question-container" style="display: flex; align-items: center;">
+                        <div class="question" id="question" style="flex-grow: 1;"></div>
+                        <input type="text" id="edit-question" style="display: none; flex-grow: 1;"/>
+                        <a id="edit-question-btn" style="margin-bottom: 20px; margin-left: 40px;"
+                           onclick="editQuestion()"><i class="bi bi-pencil"></i></a>
+                        <button id="save-question-btn" style="display: none; margin-left: 10px;"
+                                onclick="saveQuestion()">💾
+                        </button>
+                    </div>
+
+
+                    <div class="options" id="options-container"></div>
+                    <div id="result"></div>
+
                     {% if next_lesson %}
-                    <form id="submit-form" method="POST"
-                          action="{% url 'submit_quiz_score' course.id lesson.id %}">
+                    <form id="submit-form" method="POST" action="{% url 'submit_quiz_score' course.id lesson.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="final_score" id="final_score" value="0">
                         <button type="submit" class="btn submit-score" id="submit-button">Next</button>
@@ -146,9 +196,7 @@
 </div>
 
 <style>
-    body {
-        overflow: hidden;
-}
+
     .score {
          background-color: {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
          color: white;
@@ -157,56 +205,91 @@
         background-color: {% if request.customization_settings %}{{ request.customization_settings.button_color }}{% else %}#007bff{% endif %};
         color: white;
     }
+    .btn:hover {
+        background-color:  {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
+        filter: brightness(100%);
+    }
 
+    .bi {
+        color: black;
+        }
+
+@media (max-width: 768px) {
+    #video-link-display {
+        flex-direction: column; /* Stack elements vertically on small screens */
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    #video-link-text {
+        max-width: 100%; /* Ensure the link takes full width */
+        margin-bottom: 0.5rem; /* Add some space below the link */
+    }
+
+    .ms-5 {
+        margin-left: 0; /* Reset margin on small screens */
+        margin-top: 0.5rem; /* Add space above icons */
+    }
+}
 @media (max-width: 767.98px) {
     #sidebarCollapse {
         position: fixed;
         top: 10;
-        left: -250px; 
+        left: -250px;
         width: 250px;
         height: 100vh;
-        background-color: #f8f9fa;
+        background-color: #F8F9FA;
         padding: 1rem;
         overflow-y: auto;
-        transition: left 0.3s ease-in-out; 
+        transition: left 0.3s ease-in-out;
         z-index: 1050;
     }
-    
-
     .sidebar{
         min-height: unset !important;
-
     }
-
     #sidebarCollapse.show {
         left: 0;
     }
 }
+
+     .edit-icon {
+        cursor: pointer;
+        color: #007bff;
+        margin-left: 5px;
+    }
+
 
 @media (min-width: 768px) {
     #sidebarCollapse {
         position: relative;
         left: 0;
         height: 100vh;
-        transition: none; 
+        transition: none;
         overflow-y: auto;
         margin-right: -15px;
-        
+
     }
+
+    #add-video {
+        flex-direction: column;
+    }
+
+    #video-link-input {
+        width: 100%;
+    }
+
 }
 #sidebarCollapse::-webkit-scrollbar {
-        width: 7px; 
+        width: 7px;
         background-color: transparent;
     }
-
     #sidebarCollapse::-webkit-scrollbar-thumb {
-        background-color: #888; 
-        border-radius: 4px; 
+        background-color: #888;
+        border-radius: 4px;
+    }
+    #sidebarCollapse::-webkit-scrollbar-thumb:hover {
+        background-color: #555;
     }
 
-    #sidebarCollapse::-webkit-scrollbar-thumb:hover {
-        background-color: #555; 
-    }
 
     .flip-card-inner {
         position: relative;
@@ -350,9 +433,10 @@
         color: #444;
     }
     .sidebar .nav-item .nav-link:hover {
-    color: white !important; 
-    background-color: #4F46E5 !important; 
-    border-radius: 5px !important; 
+    color: white !important;
+    background-color: #4F46E5 !important;
+    border-radius: 5px !important;
+
 }
 
     .submit-score {
@@ -420,7 +504,228 @@
             font-size: 18px;
         }
     }
+    .option-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.edit-icon {
+    margin-left: 8px;
+    cursor: pointer;
+}
+    .sortable-ghost {
+    opacity: 0.5;
+    background-color: #f8f9fa;
+    border: 2px dashed #007bff;
+}
+
+.lesson-item {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+
 </style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const moduleIds = [...document.querySelectorAll('[id^="sortable-lessons-"]')];
+
+    moduleIds.forEach(module => {
+        new Sortable(module, {
+            animation: 150,
+            ghostClass: 'sortable-ghost',
+            onEnd: function (evt) {
+                const lessonOrder = [];
+                const lessons = module.querySelectorAll('.lesson-item');
+
+                lessons.forEach((lesson, index) => {
+                    lessonOrder.push({
+                        id: lesson.id,
+                        position: index + 1
+                    });
+                });
+                saveLessonOrder(module.id.replace('sortable-lessons-', ''), lessonOrder);
+            }
+        });
+    });
+});
+
+function saveLessonOrder(moduleId, lessonOrder) {
+    fetch('/save_lesson_order/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}',
+        },
+        body: JSON.stringify({
+            module_id: moduleId,
+            lesson_order: lessonOrder
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log('Lesson order saved successfully');
+        } else {
+            console.error('Error saving lesson order:', data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+</script>
+
+<script>
+    function editBar(type, id) {
+        const textElement = document.getElementById(`${type}-title-${id}`);
+        const inputElement = document.getElementById(`${type}-input-${id}`);
+        const editIconId = `edit-icon-${id}`;
+        const edit_icon = document.getElementById(editIconId);
+
+        // Hide the text element and show the input field
+        textElement.style.display = 'none';
+        inputElement.style.display = 'block';
+
+        // Hide the edit button
+        if (edit_icon) {
+            edit_icon.style.display = 'none';
+        }
+
+        // Check if the save button already exists
+        let saveButton = inputElement.parentElement.querySelector('.save-button');
+
+        if (!saveButton) {
+            // Create the save button if it doesn't exist
+            saveButton = document.createElement('button');
+            saveButton.className = 'btn btn-sm mt-1 save-button';
+            saveButton.innerHTML = '<i class="bi bi-save"></i> Save';
+
+            // Assign the onclick function to save the field
+            saveButton.onclick = () => saveField(type, id);
+
+            // Append the save button to the input element's parent
+            inputElement.parentElement.appendChild(saveButton);
+        }
+
+        // Show the save button
+        saveButton.style.display = 'inline-block';
+    }
+
+    function saveField(type, id) {
+        const textElement = document.getElementById(`${type}-title-${id}`);
+        const inputElement = document.getElementById(`${type}-input-${id}`);
+        const editButton = document.getElementById(`${type}-edit-btn-${id}`);
+        const saveButton = inputElement.parentElement.querySelector('.save-button');
+        const newValue = inputElement.value;
+
+         const editIconId = `edit-icon-${id}`;
+        const edit_icon = document.getElementById(editIconId);
+
+          if (edit_icon) {
+            edit_icon.style.display = 'block';
+        }
+        fetch(`/update-title/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                type: type,
+                id: id,
+                title: newValue
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                textElement.innerText = newValue;
+
+                // Toggle visibility of elements after saving
+                textElement.style.display = 'block';
+                inputElement.style.display = 'none';
+                saveButton.style.display = 'none';
+
+                // Show the edit button again
+                if (editButton) {
+                    editButton.style.display = 'inline-block';
+                }
+            } else {
+                alert("Error saving the title.");
+            }
+        });
+    }
+
+
+
+
+        function editTitleField(fieldId) {
+    // Hide the span containing the title text
+    const titleSpan = document.getElementById('lesson-title-span');
+    titleSpan.style.display = 'none';
+
+    // Show the input field for editing
+    const fieldInput = document.getElementById('lesson-title-input');
+    fieldInput.style.display = 'block';
+    fieldInput.disabled = false;  // Enable the input for editing
+
+    // Show the save button
+    document.getElementById('save-button').style.display = 'block';
+
+    // Copy the title from the span to the input field
+    fieldInput.value = titleSpan.textContent.trim();
+}
+
+ function editField(fieldId) {
+         const field = document.getElementById(fieldId);
+         field.disabled = false;
+         document.getElementById('save-button').style.display = 'block';
+     }
+
+
+     function saveLesson(lessonId) {
+         const title = document.getElementById('lesson-title-input').value;
+         const content = document.getElementById('lesson-content').value;
+
+         fetch(`/update_lesson/${lessonId}/`, {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRFToken': getCookie('csrftoken')
+             },
+             body: JSON.stringify({ title: title, content: content }),
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 alert('Lesson updated successfully!');
+                 location.reload();
+             } else {
+                 alert('Failed to update lesson: ' + data.error);
+             }
+         });
+     }
+
+     function getCookie(name) {
+         let cookieValue = null;
+         if (document.cookie && document.cookie !== '') {
+             const cookies = document.cookie.split(';');
+             for (let i = 0; i < cookies.length; i++) {
+                 const cookie = cookies[i].trim();
+                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                     break;
+                 }
+             }
+         }
+         return cookieValue;
+     }
+
+</script>
 
 
 <script>
@@ -433,7 +738,6 @@
   const lessonId = "{{ lesson.id }}";
 
   if (videoLink) {
-    // AJAX request to add the video
     fetch("{% url 'add_video' %}", {
       method: "POST",
       headers: {
@@ -460,7 +764,6 @@
   }
 }
 
-  // Function to remove video
   function removeVideo() {
     document.getElementById('video-link-text').textContent = '';
     document.getElementById('video-link-input').value = '';
@@ -468,98 +771,192 @@
     document.getElementById('add-video').style.display = 'flex';
   }
 
-  // Function to edit video
   function editVideo() {
     const currentLink = document.getElementById('video-link-text').textContent;
     document.getElementById('video-link-input').value = currentLink;
     document.getElementById('video-link-display').style.display = 'none';
     document.getElementById('add-video').style.display = 'flex';
   }
-    // Load quiz data from the Django template
     const quizData = {{ quiz_data|safe }};
     const courseId = "{{ course.id }}";
-    const userId = "{{ user.id }}"; // Removed extra brace
+    const userId = "{{ user.id }}";
 
-    let currentQuestionIndex = 0; // Keeps track of the current question index
+    let currentQuestionIndex = 0;
 
-    // Retrieve score for the specific course and user from localStorage or initialize to 0
-    const scores = JSON.parse(localStorage.getItem('quizScores')) || {}; // Retrieve all scores from localStorage
-    const key = `${userId}_${courseId}`; // Create a unique key using userId and courseId
-    let score = scores[key] || 0; // Get the score for the current user and course or initialize to 0
-    let answeredIncorrectly = false; // Tracks if the current question was answered incorrectly
+    const scores = JSON.parse(localStorage.getItem('quizScores')) || {};
+    const key = `${userId}_${courseId}`;
+    let score = scores[key] || 0;
+    let answeredIncorrectly = false;
 
-    // Function to save the score for the current course and user in localStorage
     function saveScore() {
-        scores[key] = score; // Update score for the current user and course
-        localStorage.setItem('quizScores', JSON.stringify(scores)); // Save the updated scores object in localStorage
+        scores[key] = score;
+        localStorage.setItem('quizScores', JSON.stringify(scores));
     }
-
-    // Function to load a question onto the page
     function loadQuestion() {
-        const questionData = quizData.quiz[currentQuestionIndex]; // Get the current question data
-        document.getElementById('question').innerText = questionData.question; // Display the question text
+    const questionData = quizData.quiz[currentQuestionIndex];
+    document.getElementById('question').innerText = questionData.question;
 
-        // Clear the previous options and load new ones
-        const optionsContainer = document.getElementById('options-container');
-        optionsContainer.innerHTML = ''; // Clear previous options
-        questionData.options.forEach((option, index) => {
-            const button = document.createElement('button'); // Create a button for each option
-            button.innerText = option; // Set button text to the option
-            button.onclick = () => selectOption(index); // Set the onClick handler to selectOption
-            button.dataset.correct = option === questionData.correct_answer; // Mark the correct answer
-            optionsContainer.appendChild(button); // Add the button to the options container
-        });
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+    questionData.options.forEach((option, index) => {
+        const optionContainer = document.createElement('div');
+        optionContainer.className = 'option-container';
 
-        document.getElementById('result').innerText = ''; // Clear previous result messages
+        const button = document.createElement('button');
+        button.innerText = option;
+        button.onclick = () => selectOption(index);
+        button.dataset.correct = option === questionData.correct_answer;
+
+        const editIcon = document.createElement('span');
+        editIcon.innerHTML = '<i class="bi bi-pencil"></i>';
+        editIcon.className = 'edit-icon';
+        editIcon.onclick = (e) => {
+            e.stopPropagation();
+            editOption(index);
+        };
+
+        optionContainer.appendChild(button);
+        optionContainer.appendChild(editIcon);
+        optionsContainer.appendChild(optionContainer);
+    });
+
+        document.getElementById('result').innerText = '';
         answeredIncorrectly = false; // Reset the incorrect answer flag
-        document.getElementById('score').innerText = score; // Display the current score
+        document.getElementById('score').innerText = score;
     }
 
-    // Function to handle option selection
     function selectOption(optionIndex) {
-        const questionData = quizData.quiz[currentQuestionIndex]; // Get current question data
-        const selectedButton = document.querySelector(`#options-container button:nth-child(${optionIndex + 1})`); // Get the selected button
+        const questionData = quizData.quiz[currentQuestionIndex];
+        const selectedButton = document.querySelector(`#options-container .option-container:nth-child(${optionIndex + 1}) button`);
         const isCorrect = selectedButton.dataset.correct === 'true'; // Check if the selected answer is correct
-        selectedButton.disabled = true; // Disable the button after selection
+        selectedButton.disabled = true;
 
         if (isCorrect) {
-            selectedButton.classList.add('correct'); // Add 'correct' class for styling
+            selectedButton.classList.add('correct');
             if (answeredIncorrectly) {
-                score += 5; // Award 5 points if initially answered incorrectly
+                score += 5;
             } else {
-                score += 10; // Award 10 points for a correct answer without mistakes
+                score += 10;
             }
-            document.getElementById('result').innerText = `Correct! Score: ${score}`; // Display correct result and score
+            document.getElementById('result').innerText = `Correct! Score: ${score}`;
             saveScore(); // Save the updated score to localStorage
             setTimeout(() => {
-                currentQuestionIndex++; // Move to the next question
+                currentQuestionIndex++;
                 if (currentQuestionIndex < quizData.quiz.length) {
-                    loadQuestion(); // Load the next question
+                    loadQuestion();
                 } else {
-                    // If no more questions, end the quiz
                     document.getElementById('question').innerText = 'Quiz finished!';
                     document.getElementById('result').innerText = `Final Score: ${score}`;
-                    document.querySelectorAll('#options-container button').forEach(btn => btn.style.display = 'none'); // Hide all option buttons
 
-                    // Set the final score in a hidden form field for submission
+                    document.querySelectorAll('#options-container button').forEach(btn => btn.style.display = 'none');
+                    document.querySelectorAll('i.bi-pencil').forEach(icon => {icon.style.display = 'none';});
+
                     document.getElementById('final_score').value = score;
-                    document.getElementById('submit-button').style.display = 'inline-block'; // Show the submit button
+                    document.getElementById('submit-button').style.display = 'inline-block';
                 }
             }, 1000); // Delay before loading the next question
         } else {
-            selectedButton.classList.add('incorrect'); // Add 'incorrect' class for styling
+            selectedButton.classList.add('incorrect');
             score -= 10; // Deduct 10 points for an incorrect answer
-            document.getElementById('result').innerText = `Incorrect! Score: ${score}`; // Display incorrect result and updated score
+            document.getElementById('result').innerText = `Incorrect! Score: ${score}`;
             answeredIncorrectly = true; // Mark that the question was answered incorrectly
             saveScore(); // Save the updated score to localStorage
         }
-        document.getElementById('score').innerText = score; // Update the score display
+        document.getElementById('score').innerText = score;
     }
 
-    // Set the 'next' button functionality
+    // Editable fields for the question and options
+function editQuestion() {
+    const questionText = document.getElementById('question').innerText;
+    document.getElementById('edit-question').value = questionText;
+    document.getElementById('question').style.display = 'none';
+    document.getElementById('edit-question').style.display = 'inline-block';
+    document.getElementById('edit-question-btn').style.display = 'none';
+    document.getElementById('save-question-btn').style.display = 'inline-block';
+}
+
+function saveQuestion() {
+    const newQuestion = document.getElementById('edit-question').value;
+    document.getElementById('question').innerText = newQuestion;
+    document.getElementById('question').style.display = 'block';
+    document.getElementById('edit-question').style.display = 'none';
+    document.getElementById('edit-question-btn').style.display = 'inline-block';
+    document.getElementById('save-question-btn').style.display = 'none';
+
+    // Send the updated question along with its index to the backend
+    saveDataToServer(newQuestion, 'question', currentQuestionIndex);
+}
+
+function editOption(optionIndex) {
+    const optionButton = document.querySelector(`#options-container .option-container:nth-child(${optionIndex + 1}) button`);
+    const optionText = optionButton.innerText;
+
+    const editInput = document.createElement('input');
+    editInput.type = 'text';
+    editInput.value = optionText;
+    optionButton.parentNode.replaceChild(editInput, optionButton); // Replace button with input field
+      const editIcon = document.querySelector(`#options-container .option-container:nth-child(${optionIndex + 1}) .edit-icon`);
+    if (editIcon) {
+        editIcon.style.display = 'none';
+         const saveIcon = document.createElement('span');
+    saveIcon.innerHTML = '💾'; // Save icon
+    saveIcon.className = 'save-icon';
+    saveIcon.onclick = function() {
+        saveOption(optionIndex, editInput.value);
+    };
+    editInput.after(saveIcon);
+    }
+    // Create the save icon
+
+}
+
+function saveOption(optionIndex, newOption) {
+    const button = document.createElement('button');
+    button.innerText = newOption;
+    button.onclick = () => selectOption(optionIndex);
+    button.dataset.correct = newOption === quizData.quiz[currentQuestionIndex].correct_answer;
+
+    const optionContainer = document.querySelector(`#options-container .option-container:nth-child(${optionIndex + 1})`);
+    optionContainer.replaceChild(button, optionContainer.querySelector('input')); // Replace input with the new button
+
+    const editIcon = document.querySelector(`#options-container .option-container:nth-child(${optionIndex + 1}) .edit-icon`);
+    const saveIcon = document.querySelector(`#options-container .option-container:nth-child(${optionIndex + 1}) .save-icon`);
+
+    if (editIcon) {
+        editIcon.style.display = 'inline';
+    }
+
+    if (saveIcon) {
+        saveIcon.style.display = 'none'; // Hide the save icon after saving
+    }
+}
+function saveDataToServer(updatedValue, fieldType, questionIndex) {
+    fetch("{% url 'save_quiz_data' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            field_type: fieldType,
+            updated_value: updatedValue,
+            question_index: questionIndex,
+            lesson_id: "{{ lesson.id }}"
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Changes saved successfully!');
+        } else {
+            alert('Error saving changes');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
     document.getElementById('next-button').addEventListener('click', () => {
-        document.getElementById('flip-card').classList.add('flipped'); // Flip the card for animation
-        loadQuestion(); // Load the next question
+        document.getElementById('flip-card').classList.add('flipped');
+        loadQuestion();
     });
 
     // Load the first question initially

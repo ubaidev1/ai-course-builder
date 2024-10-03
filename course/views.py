@@ -63,7 +63,6 @@ def next_lesson_view(request, course_id):
 
 @login_required
 def retake_quiz(request, course_id):
-    # Delete the user's existing quiz scores for the given course
     QuizScore.objects.filter(user=request.user, quiz__lesson__module__course_id=course_id).delete()
     course = get_object_or_404(Course, id=course_id)
     next_lesson = get_next_lesson(course, request.user)
@@ -97,7 +96,15 @@ def course_detail_view(request, course_id, lesson_id):
         }
         course = get_object_or_404(Course, id=course_id)
         next_lesson = get_next_lesson(course, request.user)
-        return render(request, 'course_detail.html', {
+
+        if request.user.is_admin:
+            return render(request, 'course_detail.html', {
+                'course': course,
+                'lesson': lesson,
+                'user_score': user_score,
+                'quiz_data': quiz_data,
+                'next_lesson': next_lesson})
+        return render(request, 'user_course_menu.html', {
             'course': course,
             'lesson': lesson,
             'user_score': user_score,
@@ -130,15 +137,24 @@ def get_next_lesson(course, user):
     unattempted_quizzes = quizzes.exclude(
         Q(user_scores__user=user)
     )
-    first_quiz = unattempted_quizzes.order_by('created_at').first()
-    if first_quiz:
-        return first_quiz.lesson.id
+    if unattempted_quizzes.exists():
+        unattempted_lessons = Lesson.objects.filter(
+            quizzes__in=unattempted_quizzes
+        ).distinct().order_by('module__created_at', 'position')
+
+        if unattempted_lessons.exists():
+            return unattempted_lessons.first().id
+
+    return None
 
 
 def add_video(request):
+    # Get the video link and lesson ID from the request
     video_link = request.POST.get('video_link')
     lesson_id = request.POST.get('lesson_id')
+
     if video_link and lesson_id:
+        # Fetch the related lesson object
         lesson = get_object_or_404(Lesson, id=lesson_id)
         video, created = Video.objects.get_or_create(lesson=lesson, defaults={'video_link': video_link})
         if not created:
