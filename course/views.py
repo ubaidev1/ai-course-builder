@@ -164,6 +164,21 @@ def add_video(request):
     return JsonResponse({'status': 'error', 'message': 'Missing data'}, status=400)
 
 
+def remove_video(request):
+    if request.method == "POST":
+        lesson_id = request.POST.get('lesson_id')
+        if lesson_id:
+            lesson = get_object_or_404(Lesson, id=lesson_id)
+            try:
+                video = lesson.video
+                video.delete()
+                return JsonResponse({'status': 'success'}, status=204)
+            except Video.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'Video not found'}, status=404)
+
+    return JsonResponse({'status': 'error', 'message': 'Missing lesson ID'}, status=400)
+
+
 def get_course_progress(user):
     courses = Course.objects.filter(is_published=True, is_archived=False, enrollment__user=user)
     if user.is_admin:

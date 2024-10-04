@@ -10,7 +10,12 @@ class CustomizationMiddleware:
         if request.user.is_authenticated:
             if request.user.is_admin:
                 customization_settings = CustomizationSettings.objects.filter(admin=request.user).first()
-                request.customization_settings = customization_settings
+                print("CUSTOMIZATION SETTINGS!!!!")
+                print(customization_settings)
+                if customization_settings:
+                    request.customization_settings = customization_settings
+                else:
+                    request.customization_settings = None
             if not request.user.is_admin or not request.customization_settings:
                 enrollment = CourseEnrollment.objects.filter(user=request.user).first()
                 if enrollment:

@@ -14,6 +14,7 @@
         }
          .sidebar {
          background-color: {% if request.customization_settings %}{{ request.customization_settings.background_color }}{% else %}white{% endif %};
+         color:black
         }
         .sidebar {
             color: #333;
@@ -28,7 +29,7 @@
             color: #495057;
             text-decoration: none;
             display: block;
-            padding: 12px 20px;
+            padding: 12px 10px;
             border-radius: 6px;
             transition: all 0.3s ease;
             font-weight: 500;

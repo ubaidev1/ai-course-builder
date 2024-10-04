@@ -10,4 +10,5 @@ urlpatterns = [
     path('course/<uuid:course_id>/lesson/<uuid:lesson_id>/', course_detail_view, name='course_detail'),
     path('submit_quiz_score/<uuid:course_id>/<uuid:lesson_id>/', submit_quiz_score, name='submit_quiz_score'),
     path('add-video/', add_video, name='add_video'),
+    path('remove-video/', remove_video, name='remove_video'),
 ]

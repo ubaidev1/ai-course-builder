@@ -15,7 +15,7 @@
 
 
 {% block sidebar %}
-<button class="btn btn-primary d-md-none mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarCollapse"
+<button class="btn d-md-none mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarCollapse"
         aria-expanded="false" aria-controls="sidebarCollapse">
     <i class="bi bi-list"></i>
 </button>
@@ -26,13 +26,15 @@
         {% for module in course.modules.all %}
         <li class="nav-item">
             <!-- Module Title with Edit Icon -->
-            <div class="d-flex align-items-center">
-                <a class="nav-link me-auto" data-bs-toggle="collapse" href="#module-{{ module.id }}" role="button"
-                   aria-expanded="false" aria-controls="module-{{ module.id }}" style="flex-grow: 1;">
-                    <i class="bi bi-book"></i>
-                    <span id="module-title-{{ module.id }}">{{ module.title }}</span>
+            <div class="d-flex ">
+                <a class="flex-grow-0 bg-transparent"> <i class="bi bi-book"></i></a>
+                <a class="nav-link me-auto " data-bs-toggle="collapse" href="#module-{{ module.id }}" role="button"
+                   aria-expanded="false" aria-controls="module-{{ module.id }}">
+
+                    <div id="module-title-{{ module.id }}" class="text-wrap text-break">{{ module.title }}</div>
                 </a>
-                <a onclick="editBar('module', '{{ module.id }}')" id="edit-icon-{{ module.id }}">
+                <a onclick="editBar('module', '{{ module.id }}')" id="edit-icon-{{ module.id }}"
+                   class="flex-grow-0 bg-transparent">
                     <i class="edit_icon bi bi-pencil"></i>
                 </a>
             </div>
@@ -47,11 +49,12 @@
                         <div class=" align-items-center lesson-header">
                             {% if user.is_staff %}
                             <div class="d-flex">
-                                <a class="nav-link me-2" href="{% url 'course_detail' course.id lesson.id %}">
-                                    <i class="bi bi-file-earmark-text"></i>
+                                <a class=" bg-transparent"><i class="bi bi-file-earmark-text"></i></a>
+                                <a class="nav-link me-2 " href="{% url 'course_detail' course.id lesson.id %}">
+
                                     <span id="lesson-title-{{ lesson.id }}">{{ lesson.title }}</span>
                                 </a>
-                                <a class="edit-btn" onclick="editBar('lesson', '{{ lesson.id }}')"
+                                <a class="edit-btn bg-transparent" onclick="editBar('lesson', '{{ lesson.id }}')"
                                    id="edit-icon-{{ lesson.id }}">
                                     <i class="bi bi-pencil"></i>
                                 </a>
@@ -91,18 +94,19 @@
             <div class="card flip-card-front">
                 <div class="card-body">
                     <div class="d-flex align-items-center">
-                        <!-- Display the title as a span by default -->
-                        <span id="lesson-title-span" class="card-title text-center mb-4"
-                              style="font-size: 1.75rem; width: 100%; font-weight: bold;">{{ lesson.title }}</span>
 
-                        <!-- Hidden input field for editing -->
+                        <span id="lesson-title-span" class="card-title text-center mb-4"
+                              style="font-size: 1.75rem; width: 100%; font-weight: bold; margin-right: 5px;">
+                            {{ lesson.title }}
+                        </span>
+
                         <input type="text" id="lesson-title-input"
                                class="form-control-plaintext card-title text-center mb-4"
                                value="{{ lesson.title }}"
                                style="font-size: 1.75rem; width: 100%; font-weight: bold; display: none;">
 
                         <a class="btn-sm me-3" onclick="editTitleField()" title="Edit Title">
-                            <i class="bi bi-pencil" style="margin-top: 50px"></i>
+                            <i class="bi bi-pencil" style="margin-top: 10px"></i>
                         </a>
                     </div>
 
@@ -120,7 +124,7 @@
                                            title="Edit Video">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a onclick="removeVideo()"
+                                        <a onclick="removeVideo('{{ lesson.id }}')"
                                            title="Remove Video">
                                             <i class="bi bi-trash"></i>
                                         </a>
@@ -129,11 +133,12 @@
                             </div>
                             <div id="add-video" class="input-group mb-3"
                                  style="display: {% if lesson.video.video_link %}none{% else %}flex{% endif %};">
-                                <input type="text" class="form-control" id="video-link-input"
-                                       placeholder="Enter video link"> </br>
-                                <button class="btn btn-primary btn-sm" onclick="addVideo()">Add</button>
+                                <input type="text" style="border-radius: 5px;" class="form-control"
+                                       id="video-link-input"
+                                       placeholder="Enter video link">
+                                <br>
+                                <button class="btn btn-sm" onclick="addVideo()" style="border-radius: 5px;">Add</button>
                             </div>
-
 
                         </div>
                     </div>
@@ -149,7 +154,7 @@
 
 
                     <div class="d-flex justify-content-end mt-4">
-                        <button id="save-button" class="btn btn-primary" style="display: none;"
+                        <button id="save-button" class="btn" style="display: none;"
                                 onclick="saveLesson('{{ lesson.id }}')">Save
                         </button>
                     </div>
@@ -173,8 +178,8 @@
                         <input type="text" id="edit-question" style="display: none; flex-grow: 1;"/>
                         <a id="edit-question-btn" style="margin-bottom: 20px; margin-left: 40px;"
                            onclick="editQuestion()"><i class="bi bi-pencil"></i></a>
-                        <button id="save-question-btn" style="display: none; margin-left: 10px;"
-                                onclick="saveQuestion()">💾
+                        <button class="save-icon" id="save-question-btn" style="display: none; margin-left: 10px;"
+                                onclick="saveQuestion()"><i class="bi bi-save" style="font-size: 15px; color: #007BFF; margin-left: 5px; padding: 5px; border-radius: 70%; background-color: rgba(0, 123, 255, 0.1);"></i>
                         </button>
                     </div>
 
@@ -196,6 +201,18 @@
 </div>
 
 <style>
+    .bi-pencil:hover {
+    cursor: pointer !important;
+
+}
+    .save-icon:hover {
+    cursor: pointer !important;
+
+}
+.bi-trash:hover {
+    cursor: pointer !important;
+
+}
 
     .score {
          background-color: {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
@@ -235,7 +252,7 @@
         position: fixed;
         top: 10;
         left: -250px;
-        width: 250px;
+        width: 300px;
         height: 100vh;
         background-color: #F8F9FA;
         padding: 1rem;
@@ -249,6 +266,9 @@
     #sidebarCollapse.show {
         left: 0;
     }
+    #sidebarCollapse li{
+     width:100%;
+}
 }
 
      .edit-icon {
@@ -355,6 +375,7 @@
     .question {
         font-size: 20px;
         margin-bottom: 20px !important;
+        margin-left: 40px;
         color: #222;
         font-weight: 500;
     }
@@ -370,12 +391,10 @@
     }
 
     .nav-link {
-        color: inherit;
         text-decoration: none;
     }
 
     .nav-link:active, .nav-link:focus, .nav-link:visited {
-        color: inherit;
         text-decoration: none;
         outline: none;
     }
@@ -441,7 +460,6 @@
 
     .submit-score {
         display: none;
-        background-color: #4F46E5;
         color: #fff;
         border: none;
         padding: 10px 20px;
@@ -524,6 +542,10 @@
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
+.bi-pencil :hover {
+    cursor: pointer;
+}
+
 
 </style>
 
@@ -600,9 +622,15 @@ function saveLessonOrder(moduleId, lessonOrder) {
 
         if (!saveButton) {
             // Create the save button if it doesn't exist
-            saveButton = document.createElement('button');
-            saveButton.className = 'btn btn-sm mt-1 save-button';
-            saveButton.innerHTML = '<i class="bi bi-save"></i> Save';
+            saveButton = document.createElement('i');
+            saveButton.className = 'bi bi-save save-button';
+            saveButton.style.fontSize = '23px'; // Increase size
+            saveButton.style.color = 'black'; // Change color
+            saveButton.style.padding = '5px'; // Add padding
+            saveButton.style.borderRadius = '60%'; // Make it circular
+            saveButton.style.backgroundColor = 'rgba(0, 123, 255, 0.1)'; // Light background
+            saveButton.style.marginLeft = '5px'; // Add left margin
+            saveButton.style.cursor = 'pointer';
 
             // Assign the onclick function to save the field
             saveButton.onclick = () => saveField(type, id);
@@ -764,12 +792,32 @@ function saveLessonOrder(moduleId, lessonOrder) {
   }
 }
 
-  function removeVideo() {
+function removeVideo(lessonId) {
+    event.preventDefault();
     document.getElementById('video-link-text').textContent = '';
     document.getElementById('video-link-input').value = '';
     document.getElementById('video-link-display').style.display = 'none';
     document.getElementById('add-video').style.display = 'flex';
-  }
+    fetch("{% url 'remove_video' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+            lesson_id: lessonId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
+            document.getElementById('video-link-display').style.display = 'none';
+        } else {
+            alert(data.message || "Error removing video");
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
 
   function editVideo() {
     const currentLink = document.getElementById('video-link-text').textContent;
@@ -899,7 +947,7 @@ function editOption(optionIndex) {
     if (editIcon) {
         editIcon.style.display = 'none';
          const saveIcon = document.createElement('span');
-    saveIcon.innerHTML = '💾'; // Save icon
+    saveIcon.innerHTML = '<i class="bi bi-save" style="font-size: 15px; color: #007BFF; margin-left: 5px; padding: 5px; border-radius: 70%; background-color: rgba(0, 123, 255, 0.1);"></i>';
     saveIcon.className = 'save-icon';
     saveIcon.onclick = function() {
         saveOption(optionIndex, editInput.value);
