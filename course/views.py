@@ -1,10 +1,12 @@
 import base64
+from urllib.parse import urlencode
 
 from django.contrib.auth.decorators import login_required
 from django.core import signing
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 from users.models import User, UserInvitation
 
@@ -45,12 +47,11 @@ def home_view(request, course_id=None):
         course_data = next((cp for cp in course_progress if cp['course'].id == course_id), None)
         if course_data:
             progress = course_data['progress']
-
     return render(request, 'home.html', {
         'course_progress': course_progress,
         'progress': progress,
         'user': request.user,
-        'quiz_scores': quiz_score
+        'quiz_scores': quiz_score,
     })
 
 
@@ -58,7 +59,13 @@ def home_view(request, course_id=None):
 def next_lesson_view(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     next_lesson = get_next_lesson(course, request.user)
-    return redirect('course_detail', course_id=course_id, lesson_id=next_lesson)
+    edit = request.GET.get('edit', 'false').lower() == 'true'
+    url = reverse('course_detail', kwargs={'course_id': course_id, 'lesson_id': next_lesson})
+    if edit:
+        query_string = urlencode({'edit': 'true'})
+        url = f"{url}?{query_string}"
+
+    return redirect(url)
 
 
 @login_required
@@ -74,6 +81,7 @@ def retake_quiz(request, course_id):
 
 @login_required
 def course_detail_view(request, course_id, lesson_id):
+    edit = request.GET.get('edit', 'false').lower() == 'true'
     lesson = get_object_or_404(Lesson, id=lesson_id)
     quiz = lesson.quizzes.first()
     user_score = None
@@ -82,7 +90,6 @@ def course_detail_view(request, course_id, lesson_id):
         quiz_score = QuizScore.objects.filter(user=request.user, quiz=quiz).first()
         if quiz_score:
             user_score = quiz_score.score
-
         questions = quiz.questions.all()
         quiz_data = {
             "quiz": [
@@ -96,14 +103,14 @@ def course_detail_view(request, course_id, lesson_id):
         }
         course = get_object_or_404(Course, id=course_id)
         next_lesson = get_next_lesson(course, request.user)
-
-        if request.user.is_admin:
+        if edit:
             return render(request, 'course_detail.html', {
                 'course': course,
                 'lesson': lesson,
                 'user_score': user_score,
                 'quiz_data': quiz_data,
                 'next_lesson': next_lesson})
+
         return render(request, 'user_course_menu.html', {
             'course': course,
             'lesson': lesson,
@@ -128,8 +135,12 @@ def submit_quiz_score(request, course_id, lesson_id):
         next_lesson = get_next_lesson(course, request.user)
         if not next_lesson:
             return redirect('home', course_id=course_id)
-        return redirect('course_detail', course_id=lesson.module.course.id,
-                        lesson_id=next_lesson)
+        edit = request.GET.get('edit', 'false').lower() == 'true'
+        url = reverse('course_detail', kwargs={'course_id': lesson.module.course.id, 'lesson_id': next_lesson})
+        if edit:
+            query_string = urlencode({'edit': 'true'})
+            url = f"{url}?{query_string}"
+        return redirect(url)
 
 
 def get_next_lesson(course, user):

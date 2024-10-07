@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core import signing
+from urllib.parse import urlencode
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
 from django.db.models import Subquery
@@ -97,15 +98,9 @@ def logout_view(request):
 @login_required
 def customize_color(request):
     settings, created = CustomizationSettings.objects.get_or_create(admin=request.user)
-    print("********SETTINGS******IHHI")
-    print(settings.navbar_color)
-    print("****CREATED*****")
-    print(created)
-
     if request.method == 'POST':
         settings.navbar_color = request.POST.get('navbar_color')
-        print("*****NAVBAR COLOR***")
-        print(request.POST.get('navbar_color'))
+
         settings.button_color = request.POST.get('button_color')
         settings.background_color = request.POST.get('background_color')
         settings.points_color = request.POST.get('points_color')
@@ -130,8 +125,10 @@ def dashboard(request):
             data = json.loads(json_data)
             course = create_course(request.user, data, course_name)
             os.remove(pdf_file_path)
-            return redirect('edit_course', course_id=course.id)
-
+            url = reverse('next_lesson', kwargs={'course_id': course.id})
+            query_string = urlencode({'edit': 'true'})
+            edit_course_url = f"{url}?{query_string}"
+            return redirect(edit_course_url)
         courses = Course.objects.all()
         return render(request, 'dashboard.html', {'courses': courses})
 
