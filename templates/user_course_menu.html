@@ -118,269 +118,269 @@
 
 <style>
 
-     .score {
-         background-color: {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
-         color: white;
-        }
-    .btn {
-        background-color: {% if request.customization_settings %}{{ request.customization_settings.button_color }}{% else %}#007bff{% endif %};
+    .score {
+        background-color: {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
         color: white;
-    }
-    .btn:hover {
-        background-color:  {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
-        filter: brightness(100%);
-    }
-    /* Sidebar animation for small screens */
-  @media (max-width: 767.98px) {
-      #sidebarCollapse {
-          position: fixed;
-          top: 10;
-          left: -250px; /* Initially hide the sidebar */
-          width: 250px;
-          height: 100vh;
-          background-color: #f8f9fa;
-          padding: 1rem;
-          overflow-y: auto;
-          transition: left 0.3s ease-in-out; /* Animation for the sidebar */
-          z-index: 1050;
-      }
+       }
+   .btn {
+       background-color: {% if request.customization_settings %}{{ request.customization_settings.button_color }}{% else %}#007bff{% endif %};
+       color: white;
+   }
+   .btn:hover {
+       background-color:  {% if request.customization_settings %}{{ request.customization_settings.points_color }}{% else %}black{% endif %};
+       filter: brightness(100%);
+   }
+   /* Sidebar animation for small screens */
+ @media (max-width: 767.98px) {
+     #sidebarCollapse {
+         position: fixed;
+         top: 10;
+         left: -250px; /* Initially hide the sidebar */
+         width: 250px;
+         height: 100vh;
+         background-color: #f8f9fa;
+         padding: 1rem;
+         overflow-y: auto;
+         transition: left 0.3s ease-in-out; /* Animation for the sidebar */
+         z-index: 1050;
+     }
 
-      .sidebar{
-          min-height: unset !important;
+     .sidebar{
+         min-height: unset !important;
 
-      }
+     }
 
-      /* When the sidebar is shown, slide it in from the left */
-      #sidebarCollapse.show {
-          left: 0;
-      }
-  }
+     /* When the sidebar is shown, slide it in from the left */
+     #sidebarCollapse.show {
+         left: 0;
+     }
+ }
 
-  /* For larger screens, keep the sidebar static without animation */
-  @media (min-width: 768px) {
-      #sidebarCollapse {
-          position: relative;
-          left: 0;
-          width: 250px;
-          height: auto;
-          transition: none; /* No animation for larger screens */
-      }
-  }
+ /* For larger screens, keep the sidebar static without animation */
+ @media (min-width: 768px) {
+     #sidebarCollapse {
+         position: relative;
+         left: 0;
+         width: 250px;
+         height: auto;
+         transition: none; /* No animation for larger screens */
+     }
+ }
 
-      .flip-card-inner {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          transform-style: preserve-3d;
-          transition: transform 0.6s;
-      }
+     .flip-card-inner {
+         position: relative;
+         width: 100%;
+         height: 100%;
+         transform-style: preserve-3d;
+         transition: transform 0.6s;
+     }
 
-      .flip-card-front, .flip-card-back {
-          position: absolute;
-          width: 100%;
-          backface-visibility: hidden;
-      }
+     .flip-card-front, .flip-card-back {
+         position: absolute;
+         width: 100%;
+         backface-visibility: hidden;
+     }
 
-      .flip-card-front {
-          z-index: 2;
-          transform: rotateY(0deg);
-      }
+     .flip-card-front {
+         z-index: 2;
+         transform: rotateY(0deg);
+     }
 
-      .flip-card-back {
-          transform: rotateY(180deg);
-      }
+     .flip-card-back {
+         transform: rotateY(180deg);
+     }
 
-      .flipped .flip-card-inner {
-          transform: rotateY(180deg);
-      }
+     .flipped .flip-card-inner {
+         transform: rotateY(180deg);
+     }
 
-      .quiz-container {
-          background: #ffffff;
-          border-radius: 12px;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-          padding: 10px !important;
-          text-align: center;
-      }
+     .quiz-container {
+         background: #ffffff;
+         border-radius: 12px;
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+         padding: 10px !important;
+         text-align: center;
+     }
 
-      .header {
-          font-size: 24px;
-          font-weight: 600;
-          margin-bottom: 0px !important;
-          color: #333;
-      }
+     .header {
+         font-size: 24px;
+         font-weight: 600;
+         margin-bottom: 0px !important;
+         color: #333;
+     }
 
-      .score {
-          font-size: 18px;
-          font-weight: 500;
-          margin-top: -23px;
-          position: relative;
-          top: -115px !important;
-          left: 780px !important;
-          color: #ffffff;
-          width: 110px !important;
-          height: 40px;
-          border-radius: 20px;
-          padding: 10px 20px;
-          z-index: 10;
-          text-align: center;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-      }
+     .score {
+         font-size: 18px;
+         font-weight: 500;
+         margin-top: -23px;
+         position: relative;
+         top: -115px !important;
+         left: 780px !important;
+         color: #ffffff;
+         width: 110px !important;
+         height: 40px;
+         border-radius: 20px;
+         padding: 10px 20px;
+         z-index: 10;
+         text-align: center;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+     }
 
-      .question {
-          font-size: 20px;
-          margin-bottom: 20px !important;
-          color: #222;
-          font-weight: 500;
-      }
+     .question {
+         font-size: 20px;
+         margin-bottom: 20px !important;
+         color: #222;
+         font-weight: 500;
+     }
 
-      .options {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-      }
+     .options {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+     }
 
-      .breadcrumb-item + .breadcrumb-item::before {
-          color: #495057;
-      }
+     .breadcrumb-item + .breadcrumb-item::before {
+         color: #495057;
+     }
 
-      .nav-link {
-          color: inherit;
-          text-decoration: none;
-      }
+     .nav-link {
+         color: inherit;
+         text-decoration: none;
+     }
 
-      .nav-link:active, .nav-link:focus, .nav-link:visited {
-          color: inherit;
-          text-decoration: none;
-          outline: none;
-      }
+     .nav-link:active, .nav-link:focus, .nav-link:visited {
+         color: inherit;
+         text-decoration: none;
+         outline: none;
+     }
 
-      .options button {
-          width: calc(100% - 20px);
-          max-width: 600px;
-          padding: 15px;
-          margin: 10px 0;
-          border: none;
-          border-radius: 30px;
-          background-color: #4F46E5;
-          color: #ffffff;
-          cursor: pointer;
-          font-size: 16px;
-          transition: background-color 0.3s, transform 0.2s;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
+     .options button {
+         width: calc(100% - 20px);
+         max-width: 600px;
+         padding: 15px;
+         margin: 10px 0;
+         border: none;
+         border-radius: 30px;
+         background-color: #4F46E5;
+         color: #ffffff;
+         cursor: pointer;
+         font-size: 16px;
+         transition: background-color 0.3s, transform 0.2s;
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     }
 
-      .card {
-          border: none;
-          margin: 0;
-          padding: 0;
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-          border-radius: 12px;
-      }
+     .card {
+         border: none;
+         margin: 0;
+         padding: 0;
+         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+         border-radius: 12px;
+     }
 
-      .flip-card-front, .flip-card-back {
-          background-color: #ffffff;
-          border: 1px solid #dcdcdc;
-      }
+     .flip-card-front, .flip-card-back {
+         background-color: #ffffff;
+         border: 1px solid #dcdcdc;
+     }
 
-      .options button:hover:not(:disabled) {
-          background-color: #674fbe;
-          transform: scale(1.05);
-      }
+     .options button:hover:not(:disabled) {
+         background-color: #674fbe;
+         transform: scale(1.05);
+     }
 
-      .options button.correct {
-          background-color: #28a745;
-      }
+     .options button.correct {
+         background-color: #28a745;
+     }
 
-      .options button.incorrect {
-          background-color: #dc3545;
-      }
+     .options button.incorrect {
+         background-color: #dc3545;
+     }
 
-      .options button:disabled {
-          cursor: not-allowed;
-          box-shadow: none;
-      }
+     .options button:disabled {
+         cursor: not-allowed;
+         box-shadow: none;
+     }
 
-      .result {
-          font-size: 18px;
-          font-weight: 600;
-          margin-top: 20px;
-          color: #444;
-      }
-      .sidebar .nav-item .nav-link:hover {
-      color: white !important; /* Change text color to white */
-      background-color: #4F46E5 !important; /* Change background color to blue */
-      border-radius: 5px !important; /* Rounded corners for sidebar links */
-  }
+     .result {
+         font-size: 18px;
+         font-weight: 600;
+         margin-top: 20px;
+         color: #444;
+     }
+     .sidebar .nav-item .nav-link:hover {
+     color: white !important; /* Change text color to white */
+     background-color: #4F46E5 !important; /* Change background color to blue */
+     border-radius: 5px !important; /* Rounded corners for sidebar links */
+ }
 
-      .submit-score {
-          display: none;
-          color: #fff;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 25px;
-          cursor: pointer;
-          font-size: 16px;
-          margin-top: 20px;
-      }
+     .submit-score {
+         display: none;
+         color: #fff;
+         border: none;
+         padding: 10px 20px;
+         border-radius: 25px;
+         cursor: pointer;
+         font-size: 16px;
+         margin-top: 20px;
+     }
 
-      .submit-score:hover {
-          background-color: #674fbe;
-          transform: scale(1.05);
-      }
-
-
-      @media (max-width: 768px) {
-          .score {
-              top: -75px !important;
-              left: 80px !important;
-              width: 100px !important;
-          }
-
-          .sidebar {
-              width: 100%;
-              max-height: 300px;
-              height: auto;
-              padding: 15px;
-              overflow-y: hidden;
-          }
+     .submit-score:hover {
+         background-color: #674fbe;
+         transform: scale(1.05);
+     }
 
 
-          .nav-item .nav-link:hover {
-          color: white !important;
-          background-color: #4F46E5 !important;
-          }
+     @media (max-width: 768px) {
+         .score {
+             top: -75px !important;
+             left: 80px !important;
+             width: 100px !important;
+         }
 
-          .options button {
-              width: 90%;
-              margin: 5px 0;
-          }
+         .sidebar {
+             width: 100%;
+             max-height: 300px;
+             height: auto;
+             padding: 15px;
+             overflow-y: hidden;
+         }
 
-          .quiz-container {
-              padding: 10px !important;
-          }
 
-          .flip-card-front, .flip-card-back {
-              padding: 10px;
-          }
+         .nav-item .nav-link:hover {
+         color: white !important;
+         background-color: #4F46E5 !important;
+         }
 
-          .flip-card-inner {
-              width: 100%;
-          }
+         .options button {
+             width: 90%;
+             margin: 5px 0;
+         }
 
-          .header {
-              font-size: 20px;
-          }
+         .quiz-container {
+             padding: 10px !important;
+         }
 
-          .question {
-              font-size: 18px;
-          }
-      }
+         .flip-card-front, .flip-card-back {
+             padding: 10px;
+         }
+
+         .flip-card-inner {
+             width: 100%;
+         }
+
+         .header {
+             font-size: 20px;
+         }
+
+         .question {
+             font-size: 18px;
+         }
+     }
 </style>
 
-
 <script>
+
     // Load quiz data from the Django template
     const quizData = {{ quiz_data|safe }};
     const courseId = "{{ course.id }}";
