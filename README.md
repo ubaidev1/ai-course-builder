@@ -1,61 +1,98 @@
-# Course Builder
+# 🎓 Course Builder
 
-#### There can be a normal user or an admin to access the site, Now I will go through both of the phase, first for a normal user
+Welcome to **Course Builder**, a comprehensive, AI-powered Learning Management System (LMS) built with Django. This platform provides an intuitive interface for both students and administrators, featuring dynamic course generation via AI, customizable UI, user invitations, and robust progress tracking.
 
-## For a Normal user
+---
 
-A normal user when visits the site first time, he/she will have to signup, then login to access the site.
-On home page user can view all the courses, the course title and description will be appeared on the course card
-including the progress bar.
+## 🌟 Key Features
 
-### Course Details
+### 👨‍🎓 User & Admin Roles
+The platform supports two primary roles: **Normal User** and **Admin**, each with distinct capabilities tailored to their needs.
 
-On click on view course, user will be redirected to the course details page, where we can see all the modules in that
-course and on click on view details, user will be redirected to the module details page.
+#### User Features
+- **Authentication & Enrollment:** Users can sign up, log in, and enroll in available courses.
+- **Course Navigation:** Seamlessly view course details, track progress via visual progress bars, and navigate through modules and lessons.
+- **Lesson Structure:** Each course is broken down into structured modules, containing detailed lessons and embedded videos.
+- **Quizzes & Scores:** Test your knowledge at the end of lessons. Users can retake quizzes to improve their scores, which are recorded and displayed upon completion.
+- **User Assistance:** Optimized for accessibility, the interface includes a dynamic sidebar for quick access to indexes, modules, and lessons, alongside breadcrumb navigation.
 
-### Module Details
+#### Admin Features
+- **AI-Powered Course Generation:** Admins can effortlessly create full courses by simply **uploading a PDF file**. The platform uses the **Anthropic Claude API** to extract text, determine structure, and generate corresponding modules, lessons, and quizzes automatically.
+- **Course Extension:** Easily append new modules, lessons, or quizzes to existing courses. 
+- **Dashboards & Tracking:** Access a centralized dashboard to oversee course completion statuses, calculate percentages, and monitor student performance.
+- **Result Management:** A dedicated Results table allows admins to view obtained scores, search via username/email, and filter results by course.
 
-On this page user will be able to see the list of the lessons with in that module, with a button 'Details'
+### 🎨 Customization & Branding (Admin Only)
+Ensure the platform matches your branding by leveraging the built-in UI customization tools.
+- Set global **Navbar Color**, **Background Color**, **Heading Color**, **Button Color**, and **Points Color**.
+- Changes are applied globally to enhance the tailored learning experience.
 
-### Lesson Details
+### ✉️ User Invitations (Admin Only)
+- Admins can directly invite new users to specific courses by sending automated email invitations.
+- Status tracking allows admins to see if invitations are `Pending` or `Accepted`.
 
-Here user can see the content of a specific lesson and at the end there will be a option to take a quiz.
-User should take the quiz after reading the lesson details, to increase the course progress.
-A user can also retake the quiz if he do wants to improve the score. The score will be displayed with the quiz once user
-completed the quiz.
+### 🤖 AI Integration Module (`antropic_api`)
+The backbone of the automated content builder. 
+- **PDF Extraction:** Seamlessly reads page content from uploaded PDFs.
+- **LLM Prompting:** Uses the powerful `Claude` models to parse educational text and assemble it into structured JSON data.
+- **Intelligent Parsing:** The system automatically identifies concepts, divides them into cohesive modules, generates teaching material for lessons, and formulates quiz questions with valid options.
 
-#### User assistance
+---
 
-For user assistance a sidebar is added which allows user to view the index of a course and also helps in fast access to
-any lesson, module and other pages.
-Moreover, a breadcrumb is also added for user navigational aid.
+## 🏗️ Architecture & Tech Stack
 
-## For Admin
+- **Backend:** Django, Python
+- **Database:** SQLite (default for development), supports PostgreSQL
+- **AI/ML:** Anthropic API (Claude) for intelligent content structuring, PyPDF2 for text extraction
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript, Django Templates
 
-A script is already written to create a admin
-An admin can have all the access which a normal user has, but in addition a admin can have access to following things,
-which a normal user cannot access.
+---
 
-### Dashboard
+## 🚀 Getting Started
 
-Dashboard can be accessed by an admin from the 'DashBoard' button on navbar
-Admin can access the dashboard where he will have two options:
+### Prerequisites
+- Python 3.8+
+- pip (Python package installer)
+- Anthropic API Key (for the AI course generation feature)
 
-#### 1- Can Upload a pdf file and generate content for a course.
+### Installation
 
-#### 2- Option to extending the existing course ( including more modules, lessons, quizzes)
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/course_builder.git
+   cd course_builder
+   ```
 
-For this user should select a course from the dropdown menu and upload a pdf file.
-After processing and when the course content will be generated and a course will be created, the course with the full
-content will be displayed in a readable format.
+2. **Set up a virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
 
-### Result
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-This option is also available on navbar, only for admin.
-This page consists of a table with columns : Course, Username, Email, Obtained Score, Total Score and Percentage.
+4. **Configure Environment Variables:**
+   - Add your Anthropic API Key in `config.json` inside the repository.
+   - Configure email backend variables if using the email invitation functionality.
 
-Following option are also provided on the result page:
+5. **Run Migrations & Start Server:**
+   ```bash
+   python manage.py migrate
+   python manage.py createsuperuser
+   python manage.py runserver
+   ```
+   
+6. **Access the platform:**
+   - Navigate to `http://127.0.0.1:8000/` in your browser.
 
-#### 1- Search: Admin can search with the username or email.
+---
 
-#### 2- Filter: Course Filter will show a dropdown on click and will filter out the table with the selected course.
+## 📸 Interface Sneak Peek
+
+- **Dynamic Courses:** Generate courses from PDFs in minutes instead of manually typing them out.
+- **Engaging UI:** Customize colors using the Customization Settings through the Django Admin or Custom Dashboard.
+
+*This project is continuously evolving. Feedback and contributions are welcome!*
